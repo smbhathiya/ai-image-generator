@@ -2,26 +2,12 @@
 
 import * as React from "react";
 import {
-  IconCamera,
-  IconChartBar,
-  IconDashboard,
-  IconDatabase,
-  IconFileAi,
   IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUsers,
   IconLibraryPhoto,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -47,8 +33,8 @@ const data = {
       icon: IconLibraryPhoto,
     },
     {
-      title: "About",
-      url: "/dashboard/about",
+      title: "History",
+      url: "/dashboard/history",
       icon: IconFileDescription,
     },
   ],
