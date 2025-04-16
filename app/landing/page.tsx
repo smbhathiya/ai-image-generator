@@ -1,17 +1,10 @@
-import Navbar from "./_components/Navbar";
-import Hero from "./_components/Hero";
-import Features from "./_components/Features";
-import CTA from "./_components/CTA";
-import Footer from "./_components/Footer";
+"use client";
+import HeroSection from "@/components/hero-section";
 
-export default function LandingPage() {
+export default function Home() {
   return (
     <>
-      <Navbar />
-      <Hero />
-      <Features />
-      <CTA />
-      <Footer />
+      <HeroSection />
     </>
   );
 }
