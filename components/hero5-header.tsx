@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { ModeToggle } from "./mode-toggle";
+import SvgIcon from "./logo";
 
 export const HeroHeader = () => {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -36,7 +36,11 @@ export const HeroHeader = () => {
               aria-label="home"
               className="flex items-center space-x-2"
             >
-              <Logo />
+              {/* <Logo /> */}
+              <SvgIcon className="w-8 h-8 text-primary text-bold fill-current" />
+              <h2 className="font-bold text-xl text-primary">
+                AI Image Generator
+              </h2>
             </Link>
 
             {/* Auth & Theme */}
