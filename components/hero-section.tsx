@@ -1,12 +1,10 @@
 import React from "react";
-import { Mail, SendHorizonal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { HeroHeader } from "@/components/hero5-header";
-import Image from "next/image";
 import { TextEffect } from "./ui/text-effect";
 import { AnimatedGroup } from "./ui/animated-group";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { Button } from "./ui/button";
 
 const transitionVariants = {
   item: {
