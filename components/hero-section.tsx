@@ -113,8 +113,6 @@ export default function HeroSection() {
                 }}
               >
                 <div className="-rotate-30 aspect-3/2 relative mx-auto lg:w-2/3">
-                  <div className="bg-linear-to-b to-background from-background absolute inset-0 via-transparent"></div>
-                  <div className="bg-linear-to-l to-background from-background absolute inset-0 via-transparent"></div>
                 </div>
               </AnimatedGroup>
             </div>
