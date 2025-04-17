@@ -170,7 +170,7 @@ function CreateNew() {
               </div>
 
               <Button
-                className="mt-6 w-full max-w-xs text-white font-bold"
+                className="mt-4 w-full  text-white font-bold"
                 onClick={() =>
                   downloadImage(selectedImage, images.indexOf(selectedImage))
                 }
