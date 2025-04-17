@@ -10,7 +10,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const body: PromptRequest = await req.json();
     const { prompt } = body;
 
-    const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY;
 
     if (!geminiApiKey) {
       return NextResponse.json({ error: "API key not found" }, { status: 500 });
