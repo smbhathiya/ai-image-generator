@@ -13,28 +13,32 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   const { user } = useUser();
 
   useEffect(() => {
+    const checkNewUser = async () => {
+      if (!user?.primaryEmailAddress?.emailAddress) return;
+
+      const email = user.primaryEmailAddress.emailAddress;
+
+      try {
+        const result = await db.select().from(Users).where(eq(Users.email, email));
+
+        if (result.length === 0) {
+          await db.insert(Users).values({
+            name: user.fullName ?? "",
+            email,
+            imageUrl: user.imageUrl ?? "",
+          });
+        }
+      } catch (error) {
+        console.error("Error checking or inserting user:", error);
+      }
+    };
+
     if (user) {
-      isNewUser();
+      checkNewUser();
     }
-  }, [user]);
+  }, [user]); 
 
-  const isNewUser = async () => {
-    if (!user?.primaryEmailAddress?.emailAddress) return;
-
-    const email = user.primaryEmailAddress.emailAddress;
-
-    const result = await db.select().from(Users).where(eq(Users.email, email));
-
-    if (result.length === 0) {
-      await db.insert(Users).values({
-        name: user.fullName ?? "",
-        email,
-        imageUrl: user.imageUrl ?? "",
-      });
-    }
-  };
-
-  return <div>{children}</div>;
+  return <>{children}</>; 
 };
 
 export default Provider;

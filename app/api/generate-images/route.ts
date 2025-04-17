@@ -2,7 +2,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
 interface PromptRequest {
-  prompt: any;
+  prompt: string;
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {

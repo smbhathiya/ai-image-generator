@@ -1,9 +1,14 @@
+"use client";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { ModeToggle } from "./mode-toggle";
+import { Skeleton } from "./ui/skeleton";
 
 export function SiteHeader() {
+  const { user } = useUser();
+  const isLoading = !user;
+
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -14,7 +19,11 @@ export function SiteHeader() {
         />
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
-          <UserButton />
+          {isLoading ? (
+            <Skeleton className="h-7 w-7 rounded-full" />
+          ) : (
+            <UserButton />
+          )}
         </div>
       </div>
     </header>

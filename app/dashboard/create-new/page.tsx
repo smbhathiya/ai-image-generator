@@ -82,7 +82,7 @@ function CreateNew() {
             Create New Image
           </CardTitle>
           <CardDescription>
-            Describe a scene or idea and we'll bring it to life with AI.
+            Describe a scene or idea and we&apos;ll bring it to life with AI.
           </CardDescription>
         </CardHeader>
 
@@ -170,7 +170,7 @@ function CreateNew() {
               </div>
 
               <Button
-                className="mt-6 w-full max-w-xs text-white font-bold"
+                className="mt-4 w-full  text-white font-bold"
                 onClick={() =>
                   downloadImage(selectedImage, images.indexOf(selectedImage))
                 }

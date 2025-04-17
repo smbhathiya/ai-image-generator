@@ -3,7 +3,7 @@
 import * as React from "react";
 import {
   IconFileDescription,
-  IconInnerShadowTop,
+  IconLayoutDashboardFilled,
   IconLibraryPhoto,
 } from "@tabler/icons-react";
 
@@ -19,6 +19,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import SvgIcon from "./logo";
 
 const data = {
   user: {
@@ -27,6 +28,11 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: IconLayoutDashboardFilled,
+    },
     {
       title: "Collection",
       url: "/dashboard/collection",
@@ -46,14 +52,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <Link href="/dashboard">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">
-                  AI Image Generator
+            <SidebarMenuButton asChild className="p-0 h-auto">
+              <Link href="/" className="flex items-center gap-3 px-2 py-2">
+                <SvgIcon
+                  className="w-full h-full text-black dark:text-white fill-current"
+                  style={{ transform: "scale(1.8)" }}
+                />
+                <span className="text-base font-bold dark:text-white text-black">
+                  AI IMAGE GENERATOR
                 </span>
               </Link>
             </SidebarMenuButton>
@@ -64,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
