@@ -50,7 +50,7 @@ export default function HeroSection() {
                 as="h1"
                 className="text-balance text-4xl font-medium sm:text-5xl md:text-6xl"
               >
-                Your gateway to endless entertainment experiences
+                Create Anything. Just Say It
               </TextEffect>
               <TextEffect
                 per="line"
@@ -60,9 +60,8 @@ export default function HeroSection() {
                 as="p"
                 className="mx-auto mt-12 max-w-2xl text-pretty text-lg"
               >
-                Tailwindcss highly customizable components for building modern
-                websites and applications that look and feel the way you mean
-                it.
+                Generate beautiful images from your words using Google
+                Gemini-powered AI
               </TextEffect>
 
               <AnimatedGroup
@@ -110,8 +109,7 @@ export default function HeroSection() {
                   ...transitionVariants,
                 }}
               >
-                <div className="-rotate-30 aspect-3/2 relative mx-auto lg:w-2/3">
-                </div>
+                <div className="-rotate-30 aspect-3/2 relative mx-auto lg:w-2/3"></div>
               </AnimatedGroup>
             </div>
           </div>
