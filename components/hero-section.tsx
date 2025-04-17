@@ -5,6 +5,7 @@ import { AnimatedGroup } from "./ui/animated-group";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { IconArrowBigRightFilled } from "@tabler/icons-react";
 
 const transitionVariants = {
   item: {
@@ -81,14 +82,16 @@ export default function HeroSection() {
                 {isSignedIn ? (
                   <>
                     <Link href="/dashboard">
-                      <Button>Dashboard</Button>
+                      <Button className="cursor-pointer " size="lg">
+                        Go to Dashboard <IconArrowBigRightFilled />
+                      </Button>
                     </Link>
                   </>
                 ) : (
                   <>
                     <Link href="/sign-in">
                       <Button className="cursor-pointer " size="lg">
-                        Get Started
+                        Get Started <IconArrowBigRightFilled />
                       </Button>
                     </Link>
                   </>
