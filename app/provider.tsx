@@ -21,7 +21,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
       };
 
       try {
-        const response = await fetch("/api/check-or-insert-user", {
+        await fetch("/api/check-or-insert-user", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -29,7 +29,6 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
           body: JSON.stringify(userData),
         });
 
-        const result = await response.json();
       } catch (error) {
         throw error;
       }

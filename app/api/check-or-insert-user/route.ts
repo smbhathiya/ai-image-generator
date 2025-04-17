@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     const result = await checkOrInsertUser({ name, email, imageUrl });
     return NextResponse.json(result);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
