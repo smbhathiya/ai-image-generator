@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -13,7 +13,7 @@ import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Download, X } from "lucide-react";
 
-function CreateNew() {
+const CreateNew = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
@@ -21,8 +21,18 @@ function CreateNew() {
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const generateImage = async () => {
+  const fetchImage = async (prompt: string) => {
+    const res = await fetch("/api/generate-images", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    return res.json();
+  };
+
+  const generateImage = useCallback(async () => {
     if (!prompt.trim()) return;
+
     setLoading(true);
     setImages([]);
     setResponseText("");
@@ -30,26 +40,16 @@ function CreateNew() {
 
     try {
       const results = await Promise.all([
-        fetch("/api/generate-images", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
-        }),
-        fetch("/api/generate-images", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
-        }),
+        fetchImage(prompt),
+        fetchImage(prompt),
       ]);
+      const validResponses = results.filter((res) => res?.image);
 
-      const jsons = await Promise.all(results.map((res) => res.json()));
-      const successResponses = jsons.filter((res, i) => results[i].ok);
-
-      if (successResponses.length > 0) {
-        setImages(successResponses.map((res) => res.image));
-        setResponseText(successResponses[0].text || "");
+      if (validResponses.length > 0) {
+        setImages(validResponses.map((res) => res.image));
+        setResponseText(validResponses[0].text || "");
       } else {
-        setError(jsons[0].error || "Something went wrong");
+        setError(results[0]?.error || "Something went wrong");
       }
     } catch (err) {
       console.error(err);
@@ -57,21 +57,13 @@ function CreateNew() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [prompt]);
 
   const downloadImage = (image: string, index: number) => {
     const a = document.createElement("a");
     a.href = `data:image/png;base64,${image}`;
     a.download = `ai-generated-image-${index + 1}.png`;
     a.click();
-  };
-
-  const openImagePopup = (image: string) => {
-    setSelectedImage(image);
-  };
-
-  const closeImagePopup = () => {
-    setSelectedImage(null);
   };
 
   return (
@@ -99,9 +91,9 @@ function CreateNew() {
 
           {error && <p className="text-red-500 mt-4">{error}</p>}
 
-          <div className="mt-6 flex flex-row gap-4">
+          <div className="mt-6 flex flex-row gap-4 flex-wrap">
             {loading &&
-              [0, 1].map((i) => (
+              Array.from({ length: 2 }).map((_, i) => (
                 <Skeleton
                   key={i}
                   className="w-64 h-64 rounded-2xl aspect-square"
@@ -113,7 +105,7 @@ function CreateNew() {
                 <div
                   key={i}
                   className="relative w-64 h-64 cursor-pointer"
-                  onClick={() => openImagePopup(img)}
+                  onClick={() => setSelectedImage(img)}
                 >
                   <Image
                     src={`data:image/png;base64,${img}`}
@@ -142,35 +134,36 @@ function CreateNew() {
         </CardContent>
       </Card>
 
+      {/* Popup */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={closeImagePopup}
+          onClick={() => setSelectedImage(null)}
         >
           <div
             className="relative max-w-[90vw] max-h-[90vh] w-auto bg-accent rounded-2xl overflow-hidden shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={closeImagePopup}
+              onClick={() => setSelectedImage(null)}
               className="absolute top-2 right-2 p-2 hover:text-primary-foreground text-primary-foreground cursor-pointer rounded-full z-10"
             >
               <X className="w-6 h-6" />
             </button>
 
             <div className="flex flex-col items-center justify-center p-6">
-              <div className="w-full flex justify-center">
-                <Image
+              {/* Image container */}
+              <div className="relative w-[70vh] h-[70vh] max-w-full max-h-full overflow-hidden rounded-xl bg-primary">
+                <img
                   src={`data:image/png;base64,${selectedImage}`}
                   alt="Selected Image"
-                  width={512}
-                  height={512}
-                  className="rounded-xl  max-w-[70vh] h-auto bg-primary"
+                  className="object-cover w-full h-full rounded-xl"
                 />
               </div>
 
+              {/* Button outside the image box */}
               <Button
-                className="mt-4 w-full  text-white font-bold"
+                className="mt-6 w-full max-w-xs text-white font-bold"
                 onClick={() =>
                   downloadImage(selectedImage, images.indexOf(selectedImage))
                 }
@@ -184,6 +177,6 @@ function CreateNew() {
       )}
     </div>
   );
-}
+};
 
 export default CreateNew;
