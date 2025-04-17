@@ -1,9 +1,7 @@
 "use client";
-import { db } from "@/configs/drizzle";
-import { Users } from "@/configs/schema";
+
 import { useUser } from "@clerk/nextjs";
-import { eq } from "drizzle-orm";
-import React, { useEffect, ReactNode } from "react";
+import { useEffect, ReactNode } from "react";
 
 interface ProviderProps {
   children: ReactNode;
@@ -13,32 +11,36 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   const { user } = useUser();
 
   useEffect(() => {
-    const checkNewUser = async () => {
+    const handleUserCheck = async () => {
       if (!user?.primaryEmailAddress?.emailAddress) return;
 
-      const email = user.primaryEmailAddress.emailAddress;
+      const userData = {
+        email: user.primaryEmailAddress.emailAddress,
+        name: user.fullName ?? undefined,
+        imageUrl: user.imageUrl ?? undefined,
+      };
 
       try {
-        const result = await db.select().from(Users).where(eq(Users.email, email));
+        const response = await fetch("/api/check-or-insert-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        });
 
-        if (result.length === 0) {
-          await db.insert(Users).values({
-            name: user.fullName ?? "",
-            email,
-            imageUrl: user.imageUrl ?? "",
-          });
-        }
+        const result = await response.json();
       } catch (error) {
-        console.error("Error checking or inserting user:", error);
+        throw error;
       }
     };
 
     if (user) {
-      checkNewUser();
+      handleUserCheck();
     }
-  }, [user]); 
+  }, [user]);
 
-  return <>{children}</>; 
+  return <>{children}</>;
 };
 
 export default Provider;
