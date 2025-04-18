@@ -14,8 +14,6 @@ export async function getImagesPaginated(offset = 0, limit = 6) {
     .offset(offset)
     .limit(limit);
 
-  console.log("Paginated images (all users):", images);
-
   return images;
 }
 

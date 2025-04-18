@@ -23,7 +23,7 @@ export async function saveGeneratedImage({
 }: SaveImageParams) {
   try {
     // Get Clerk user ID
-    const { userId } =await auth();
+    const { userId } = await auth();
     if (!userId) {
       throw new Error("User not authenticated");
     }
