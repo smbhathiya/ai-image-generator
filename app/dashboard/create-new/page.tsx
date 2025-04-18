@@ -84,7 +84,7 @@ const CreateNew = () => {
             Create New Image
           </CardTitle>
           <CardDescription>
-            Describe a scene or idea and we'll bring it to life with AI. Images are automatically saved.
+            Describe a scene or idea and we&apos;ll bring it to life with AI. Images are automatically saved.
           </CardDescription>
         </CardHeader>
 
