@@ -1,12 +1,9 @@
 "use client";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
+import ViewImages from "./_components/ViewImages";
+import Link from "next/link";
+import { IconCirclePlusFilled } from "@tabler/icons-react";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -22,36 +19,53 @@ export default function Dashboard() {
     name: user?.fullName || user?.firstName || "User",
   };
   const greeting = getGreeting();
+
   return (
     <>
       <div className="m-4">
-        <h1 className="text-primary text-2xl sm:text-3xl lg:text-4xl font-bold p-4 mb-4">
-          {isLoading ? (
-            <Skeleton className="h-10 w-60" />
-          ) : (
-            <>
-              {greeting}, {userData.name} 👋
-            </>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 mb-4">
+          <h1 className="text-primary text-2xl sm:text-3xl lg:text-4xl font-bold">
+            {isLoading ? (
+              <Skeleton className="h-10 w-60" />
+            ) : (
+              <>
+                {greeting}, {userData.name} 👋
+              </>
+            )}
+          </h1>
+          {!isLoading && (
+            <Link href="/dashboard/create-new">
+              <button className="mt-4 sm:mt-0 inline-flex items-center justify-center rounded-md bg-primary text-white px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-primary/90 cursor-pointer">
+                <IconCirclePlusFilled className="mr-2" />
+                Create new
+              </button>
+            </Link>
           )}
-        </h1>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-primary text-2xl font-bold">
-              Recent
-            </CardTitle>
-            <CardDescription>Comming soon</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-      <div className="m-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-primary text-2xl font-bold">
-              History
-            </CardTitle>
-            <CardDescription>Comming soon</CardDescription>
-          </CardHeader>
-        </Card>
+        </div>
+
+        <div className="mb-6">
+          {isLoading ? (
+            <Skeleton className="h-64 w-full rounded-xl" />
+          ) : (
+            <ViewImages
+              apiUrl="/api/user-recent-images"
+              title="Your Recent Images"
+              imageLimit={6}
+            />
+          )}
+        </div>
+
+        <div>
+          {isLoading ? (
+            <Skeleton className="h-64 w-full rounded-xl" />
+          ) : (
+            <ViewImages
+              apiUrl="/api/recent-images"
+              title="Recent Images"
+              imageLimit={6}
+            />
+          )}
+        </div>
       </div>
     </>
   );

@@ -13,13 +13,25 @@ import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Download, X } from "lucide-react";
 
+interface ImageResponse {
+  image: string;
+  text: string;
+  savedImage?: {
+    id: number;
+    cloudinaryUrl: string;
+    cloudinaryId: string;
+  };
+}
+
 const CreateNew = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<ImageResponse[]>([]);
   const [responseText, setResponseText] = useState("");
   const [error, setError] = useState("");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageResponse | null>(
+    null
+  );
 
   const fetchImage = async (prompt: string) => {
     const res = await fetch("/api/generate-images", {
@@ -46,7 +58,7 @@ const CreateNew = () => {
       const validResponses = results.filter((res) => res?.image);
 
       if (validResponses.length > 0) {
-        setImages(validResponses.map((res) => res.image));
+        setImages(validResponses as ImageResponse[]);
         setResponseText(validResponses[0].text || "");
       } else {
         setError(results[0]?.error || "Something went wrong");
@@ -74,7 +86,7 @@ const CreateNew = () => {
             Create New Image
           </CardTitle>
           <CardDescription>
-            Describe a scene or idea and we&apos;ll bring it to life with AI.
+            Describe a scene or idea and we&apos;ll bring it to life with AI
           </CardDescription>
         </CardHeader>
 
@@ -108,7 +120,10 @@ const CreateNew = () => {
                   onClick={() => setSelectedImage(img)}
                 >
                   <Image
-                    src={`data:image/png;base64,${img}`}
+                    src={
+                      img.savedImage?.cloudinaryUrl ||
+                      `data:image/png;base64,${img.image}`
+                    }
                     alt={`Generated Image ${i + 1}`}
                     width={256}
                     height={256}
@@ -117,13 +132,18 @@ const CreateNew = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      downloadImage(img, i);
+                      downloadImage(img.image, i);
                     }}
                     className="absolute top-2 right-2 bg-primary p-2 rounded-full shadow hover:bg-primary/80 transition"
                     title="Download"
                   >
                     <Download className="w-4 h-4 text-white" />
                   </button>
+                  {img.savedImage && (
+                    <span className="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                      Saved
+                    </span>
+                  )}
                 </div>
               ))}
           </div>
@@ -134,7 +154,6 @@ const CreateNew = () => {
         </CardContent>
       </Card>
 
-      {/* Popup */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -152,20 +171,24 @@ const CreateNew = () => {
             </button>
 
             <div className="flex flex-col items-center justify-center p-6">
-              {/* Image container */}
               <div className="relative w-[70vh] h-[70vh] max-w-full max-h-full overflow-hidden rounded-xl bg-primary">
                 <img
-                  src={`data:image/png;base64,${selectedImage}`}
+                  src={
+                    selectedImage.savedImage?.cloudinaryUrl ||
+                    `data:image/png;base64,${selectedImage.image}`
+                  }
                   alt="Selected Image"
                   className="object-cover w-full h-full rounded-xl"
                 />
               </div>
 
-              {/* Button outside the image box */}
               <Button
                 className="mt-6 w-full max-w-xs text-white font-bold"
                 onClick={() =>
-                  downloadImage(selectedImage, images.indexOf(selectedImage))
+                  downloadImage(
+                    selectedImage.image,
+                    images.indexOf(selectedImage)
+                  )
                 }
               >
                 <Download className="w-4 h-4 mr-2" />

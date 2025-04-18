@@ -3,13 +3,13 @@ import { checkOrInsertUser } from "@/actions/userActions";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, imageUrl } = await request.json();
+    const { clerkId, name, email, imageUrl } = await request.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const result = await checkOrInsertUser({ name, email, imageUrl });
+    const result = await checkOrInsertUser({ clerkId, name, email, imageUrl });
     return NextResponse.json(result);
   } catch {
     return NextResponse.json(

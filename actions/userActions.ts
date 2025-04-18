@@ -8,10 +8,12 @@ export async function checkOrInsertUser({
   name,
   email,
   imageUrl,
+  clerkId,
 }: {
   name?: string;
   email: string;
   imageUrl?: string;
+  clerkId?: string;
 }) {
   if (!email) {
     throw new Error("Email is required");
@@ -26,6 +28,7 @@ export async function checkOrInsertUser({
     if (result.length === 0) {
       console.log("Inserting new user");
       await db.insert(Users).values({
+        clerkId: clerkId ?? "",
         name: name ?? "",
         email,
         imageUrl: imageUrl ?? "",

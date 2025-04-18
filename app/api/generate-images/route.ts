@@ -1,3 +1,4 @@
+import { saveGeneratedImage } from "@/actions/saveImageActions";
 import { GoogleGenAI, Modality } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -36,7 +37,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       else if (part.inlineData) imageBase64 = part.inlineData.data ?? "";
     }
 
-    return NextResponse.json({ text: textOutput, image: imageBase64 });
+    // Auto-save the image if generated
+    let savedImage = null;
+    if (imageBase64) {
+      savedImage = await saveGeneratedImage({
+        base64Image: imageBase64,
+        prompt,
+      });
+    }
+
+    return NextResponse.json({
+      text: textOutput,
+      image: imageBase64,
+      savedImage: savedImage?.image,
+    });
   } catch (error) {
     console.error("Error generating image:", error);
     return NextResponse.json(
