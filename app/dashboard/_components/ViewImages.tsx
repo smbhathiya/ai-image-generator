@@ -1,4 +1,3 @@
-// _components/ViewImages.tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import useSWR from "swr";
@@ -8,9 +7,9 @@ interface ImageData {
 }
 
 interface ViewImagesProps {
-  apiUrl: string; // API URL to fetch images
-  title: string; // Title for the section
-  imageLimit?: number; // Limit on the number of images to show
+  apiUrl: string; 
+  title: string; 
+  imageLimit?: number;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

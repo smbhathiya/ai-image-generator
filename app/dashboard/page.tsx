@@ -5,7 +5,6 @@ import ViewImages from "./_components/ViewImages";
 import Link from "next/link";
 import { IconCirclePlusFilled } from "@tabler/icons-react";
 
-// Helper function for greeting message
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning";
@@ -24,7 +23,6 @@ export default function Dashboard() {
   return (
     <>
       <div className="m-4">
-        {/* Greeting and Create Button */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 mb-4">
           <h1 className="text-primary text-2xl sm:text-3xl lg:text-4xl font-bold">
             {isLoading ? (
@@ -45,7 +43,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Your Recent Images (user-specific) */}
         <div className="mb-6">
           {isLoading ? (
             <Skeleton className="h-64 w-full rounded-xl" />
@@ -58,7 +55,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Recent Images (general) */}
         <div>
           {isLoading ? (
             <Skeleton className="h-64 w-full rounded-xl" />
