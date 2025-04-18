@@ -1,11 +1,14 @@
 "use server";
 
+export const runtime = "nodejs";
+
 import { getDb } from "@/configs/drizzle";
 import { Images, Users } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@clerk/nextjs/server";
 
+// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -22,27 +25,19 @@ export async function saveGeneratedImage({
   prompt,
 }: SaveImageParams) {
   try {
-    // Get Clerk user ID
-    const { userId } =await auth();
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
+    const { userId } = await auth();
+    if (!userId) throw new Error("User not authenticated");
 
     const db = await getDb();
-
-    // Get user from database using Clerk ID
     const userResult = await db
       .select()
       .from(Users)
       .where(eq(Users.clerkId, userId));
 
-    if (userResult.length === 0) {
-      throw new Error("User not found in database");
-    }
+    if (userResult.length === 0) throw new Error("User not found");
 
     const dbUser = userResult[0];
 
-    // Upload image to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(
       `data:image/png;base64,${base64Image}`,
       {
@@ -51,7 +46,6 @@ export async function saveGeneratedImage({
       }
     );
 
-    // Save image to database
     const imageRecord = await db
       .insert(Images)
       .values({
