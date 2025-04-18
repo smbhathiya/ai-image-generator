@@ -13,6 +13,12 @@ function getGreeting() {
   return "Good Evening";
 }
 
+interface ImageData {
+  id: string;
+  cloudinaryUrl: string;
+  [key: string]: unknown;
+}
+
 export default function Explorer() {
   const { user } = useUser();
   const isLoading = !user;
@@ -21,7 +27,7 @@ export default function Explorer() {
   };
   const greeting = getGreeting();
 
-  const [images, setImages] = useState<any[]>([]);
+  const [images, setImages] = useState<ImageData[]>([]);
   const [loadingImages, setLoadingImages] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
@@ -109,7 +115,7 @@ export default function Explorer() {
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-            {images.map((image: any, index: number) => (
+            {images.map((image: ImageData, index: number) => (
               <div
                 key={`${image.id}-${index}`}
                 className="break-inside-avoid overflow-hidden rounded-lg shadow-md"

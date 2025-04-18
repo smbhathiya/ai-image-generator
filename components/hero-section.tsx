@@ -84,7 +84,7 @@ export default function HeroSection() {
                   <>
                     <Link href="/explorer">
                       <Button className="cursor-pointer " size="lg">
-                        Let's Create
+                        Let&apos;s Create
                         <IconArrowBigRightFilled />
                       </Button>
                     </Link>
