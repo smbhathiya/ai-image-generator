@@ -35,7 +35,7 @@ const data = {
     },
     {
       title: "History",
-      url: "/dashboard/history",
+      url: "/explorer/history",
       icon: IconFileDescription,
     },
   ],
@@ -48,13 +48,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="p-0 h-auto">
-              <Link href="/" className="flex items-center gap-3 px-2 py-2">
+              <Link
+                href="/"
+                className="flex flex-col items-center gap-2 px-2 py-2"
+              >
                 <SvgIcon
-                  className="w-full h-full text-black dark:text-primary fill-current"
-                  style={{ transform: "scale(1.8)" }}
+                  className="w-6 h-6 text-black dark:text-primary fill-current"
+                  style={{ transform: "scale(2.5)" }}
                 />
-                <span className="text-base font-bold dark:text-primary text-black">
-                  AI IMAGE GENERATOR
+                <span className="text-xl font-extrabold text-center dark:text-primary text-black leading-tight">
+                  AI IMAGE
+                  <br />
+                  GENERATOR
                 </span>
               </Link>
             </SidebarMenuButton>
