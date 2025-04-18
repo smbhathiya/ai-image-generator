@@ -15,6 +15,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
       if (!user?.primaryEmailAddress?.emailAddress) return;
 
       const userData = {
+        clerkId: user.id,
         email: user.primaryEmailAddress.emailAddress,
         name: user.fullName ?? undefined,
         imageUrl: user.imageUrl ?? undefined,
@@ -28,7 +29,6 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
           },
           body: JSON.stringify(userData),
         });
-
       } catch (error) {
         throw error;
       }
