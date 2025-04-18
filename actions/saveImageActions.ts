@@ -12,14 +12,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-console.log("Cloudinary Config:", {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY ? "API_KEY_SET" : "API_KEY_MISSING",
-  api_secret: process.env.CLOUDINARY_API_SECRET
-    ? "API_SECRET_SET"
-    : "API_SECRET_MISSING",
-});
-
 interface SaveImageParams {
   base64Image: string;
   prompt: string;
