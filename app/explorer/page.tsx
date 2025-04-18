@@ -38,7 +38,7 @@ export default function Explorer() {
     setLoadingImages(true);
 
     try {
-      const res = await fetch(`/api/images-paginated?offset=${offset}&limit=5`); 
+      const res = await fetch(`/api/images-paginated?offset=${offset}&limit=10`); 
       const data = await res.json();
 
       if (data.length > 0) {
@@ -49,7 +49,7 @@ export default function Explorer() {
           );
           return [...prevImages, ...newImages];
         });
-        setOffset((prevOffset) => prevOffset + 5); 
+        setOffset((prevOffset) => prevOffset + 10); 
       } else {
         setHasMore(false); 
       }

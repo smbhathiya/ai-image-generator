@@ -22,7 +22,7 @@ export default function History() {
 
   const fetchImages = useCallback(async () => {
     try {
-      const res = await fetch(`/api/user-images?offset=${offset}&limit=5`);
+      const res = await fetch(`/api/user-images?offset=${offset}&limit=10`);
       const data = await res.json();
 
       if (data.length > 0) {
@@ -33,9 +33,9 @@ export default function History() {
           );
           return [...prevImages, ...newImages];
         });
-        setOffset((prevOffset) => prevOffset + 5); 
+        setOffset((prevOffset) => prevOffset + 10);
       } else {
-        setHasMore(false); 
+        setHasMore(false);
       }
     } catch (error) {
       console.error("Failed to load images:", error);
