@@ -29,42 +29,42 @@ export default function Explorer() {
   const greeting = getGreeting();
 
   const [images, setImages] = useState<ImageData[]>([]);
-  const [loadingImages, setLoadingImages] = useState(true);
+  const [loadingImages, setLoadingImages] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
 
   const fetchImages = useCallback(async () => {
+    if (loadingImages) return; 
+    setLoadingImages(true);
+
     try {
-      const res = await fetch(
-        `/api/images-paginated?offset=${offset}&limit=10`
-      );
+      const res = await fetch(`/api/images-paginated?offset=${offset}&limit=10`); 
       const data = await res.json();
 
       if (data.length > 0) {
-        setImages((prevImages) => [...prevImages, ...data]);
-        setOffset((prevOffset) => prevOffset + 10);
+        setImages((prevImages) => {
+          const newImages = data.filter(
+            (newImage: ImageData) =>
+              !prevImages.some((image) => image.id === newImage.id)
+          );
+          return [...prevImages, ...newImages];
+        });
+        setOffset((prevOffset) => prevOffset + 10); 
       } else {
-        setHasMore(false);
+        setHasMore(false); 
       }
     } catch (error) {
       console.error("Failed to load images:", error);
     } finally {
       setLoadingImages(false);
     }
-  }, [offset]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      fetchImages();
-    }
-  }, [isLoading, fetchImages]);
+  }, [offset, loadingImages]);
 
   const handleScroll = useCallback(() => {
     const scrollPosition = window.scrollY + window.innerHeight;
     const bottom = document.documentElement.scrollHeight;
 
     if (scrollPosition >= bottom - 100 && !loadingImages && hasMore) {
-      setLoadingImages(true);
       fetchImages();
     }
   }, [loadingImages, hasMore, fetchImages]);
@@ -75,6 +75,10 @@ export default function Explorer() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [handleScroll]);
+
+  useEffect(() => {
+    fetchImages(); 
+  }, []); 
 
   return (
     <div className="m-4">
@@ -92,7 +96,7 @@ export default function Explorer() {
           </h1>
           {!isLoading && (
             <p className="text-muted-foreground text-sm sm:text-base">
-              Welcome back! Hope you &apos;re having a productive day
+              Welcome back! Hope you&apos;re having a productive day
             </p>
           )}
         </div>

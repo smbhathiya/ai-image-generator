@@ -47,12 +47,12 @@ export const HeroHeader = () => {
             <div className="flex items-center gap-4">
               {isSignedIn ? (
                 <Button asChild size="sm">
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/explorer">Go to Home</Link>
                 </Button>
               ) : (
                 <>
                   <Button asChild size="sm">
-                    <Link href="/dashboard">Sign In</Link>
+                    <Link href="/explorer">Sign In</Link>
                   </Button>
                 </>
               )}
