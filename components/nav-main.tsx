@@ -1,7 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { IconCirclePlusFilled, type Icon } from "@tabler/icons-react";
-
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 
 export function NavMain({
   items,
@@ -20,31 +20,35 @@ export function NavMain({
     icon?: Icon;
   }[];
 }) {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2 p-1">
-            <Link
-              href="/dashboard/create-new"
-              className="h-10 w-full rounded-lg bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear flex items-center gap-2 px-3 "
-            >
-              <IconCirclePlusFilled />
-              <span>Quick Create</span>
-            </Link>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <Link href={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const isActive = pathname === item.url;
+
+            return (
+              <SidebarMenuItem key={item.title}>
+                <Link href={item.url}>
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors h-10
+                      ${
+                        isActive
+                          ? "bg-primary hover:bg-primary hover:text-white text-white"
+                          : ""
+                      } 
+                      cursor-pointer`}
+                  >
+                    {item.icon && <item.icon className="h-5 w-5" />}
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

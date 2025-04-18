@@ -14,7 +14,7 @@ function Dashboardlayout({ children }: { children: ReactNode }) {
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="floating" />
+        <AppSidebar variant="inset" />
         <SidebarInset>
           <div className="sticky top-0 z-30 bg-background">
             <SiteHeader />

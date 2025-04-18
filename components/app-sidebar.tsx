@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconFileDescription,
-  IconLayoutDashboardFilled,
-  IconLibraryPhoto,
-} from "@tabler/icons-react";
+import { IconFileDescription, IconLibraryPhoto } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -22,20 +18,15 @@ import Link from "next/link";
 import SvgIcon from "./logo";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconLayoutDashboardFilled,
+      title: "Explorer",
+      url: "/explorer",
+      icon: IconLibraryPhoto,
     },
     {
-      title: "Collection",
-      url: "/dashboard/collection",
+      title: "Create New",
+      url: "/explorer/create-new",
       icon: IconLibraryPhoto,
     },
     {
@@ -55,10 +46,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton asChild className="p-0 h-auto">
               <Link href="/" className="flex items-center gap-3 px-2 py-2">
                 <SvgIcon
-                  className="w-full h-full text-black dark:text-white fill-current"
+                  className="w-full h-full text-black dark:text-primary fill-current"
                   style={{ transform: "scale(1.8)" }}
                 />
-                <span className="text-base font-bold dark:text-white text-black">
+                <span className="text-base font-bold dark:text-primary text-black">
                   AI IMAGE GENERATOR
                 </span>
               </Link>
