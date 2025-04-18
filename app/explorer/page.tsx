@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { IconCirclePlusFilled } from "@tabler/icons-react";
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -58,7 +59,7 @@ export default function Explorer() {
     }
   }, [isLoading, fetchImages]);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const scrollPosition = window.scrollY + window.innerHeight;
     const bottom = document.documentElement.scrollHeight;
 
@@ -66,14 +67,14 @@ export default function Explorer() {
       setLoadingImages(true);
       fetchImages();
     }
-  };
+  }, [loadingImages, hasMore, fetchImages]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [loadingImages, hasMore]);
+  }, [handleScroll]);
 
   return (
     <div className="m-4">
@@ -91,7 +92,7 @@ export default function Explorer() {
           </h1>
           {!isLoading && (
             <p className="text-muted-foreground text-sm sm:text-base">
-              Welcome back! Hope you're having a productive day
+              Welcome back! Hope you &apos;re having a productive day
             </p>
           )}
         </div>
@@ -120,9 +121,11 @@ export default function Explorer() {
                 key={`${image.id}-${index}`}
                 className="break-inside-avoid overflow-hidden rounded-lg shadow-md"
               >
-                <img
+                <Image
                   src={image.cloudinaryUrl}
                   alt="Image"
+                  width={500}
+                  height={300}
                   className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
                 />
               </div>
