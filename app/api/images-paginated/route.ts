@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   try {
     const images = await getImagesPaginated(offset, limit);
     return NextResponse.json(images);
-  } catch (error) {
+  } catch {
     return new NextResponse("Error loading images", { status: 500 });
   }
 }
