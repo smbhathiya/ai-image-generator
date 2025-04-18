@@ -29,7 +29,9 @@ const CreateNew = () => {
   const [images, setImages] = useState<ImageResponse[]>([]);
   const [responseText, setResponseText] = useState("");
   const [error, setError] = useState("");
-  const [selectedImage, setSelectedImage] = useState<ImageResponse | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageResponse | null>(
+    null
+  );
 
   const fetchImage = async (prompt: string) => {
     const res = await fetch("/api/generate-images", {
@@ -84,7 +86,7 @@ const CreateNew = () => {
             Create New Image
           </CardTitle>
           <CardDescription>
-            Describe a scene or idea and we&apos;ll bring it to life with AI. Images are automatically saved.
+            Describe a scene or idea and we&apos;ll bring it to life with AI
           </CardDescription>
         </CardHeader>
 

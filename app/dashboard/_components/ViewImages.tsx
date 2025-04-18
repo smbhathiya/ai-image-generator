@@ -1,56 +1,38 @@
-"use client";
-
+// _components/ViewImages.tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import useSWR, { mutate } from "swr";
-import { useUser } from "@clerk/nextjs";
-import { useEffect } from "react";
+import useSWR from "swr";
 
-// Define the type for the image object
 interface ImageData {
   cloudinaryUrl: string;
 }
 
+interface ViewImagesProps {
+  apiUrl: string; // API URL to fetch images
+  title: string; // Title for the section
+  imageLimit?: number; // Limit on the number of images to show
+}
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function RecentImages() {
-  const { user } = useUser();
-  const { data, isLoading, error } = useSWR("/api/recent-images", fetcher);
-
-  useEffect(() => {
-    if (user) {
-      mutate("/api/recent-images");
-    }
-  }, [user]);
-
-  if (error) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-primary text-2xl font-bold">
-            Recent Images
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-500">
-            Failed to fetch images, please try again later or refresh the page.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const images = data?.images?.slice(0, 6) || [];
+export default function ViewImages({
+  apiUrl,
+  title,
+  imageLimit = 6,
+}: ViewImagesProps) {
+  // Fetch the images data
+  const { data, error, isLoading } = useSWR(apiUrl, fetcher);
 
   if (isLoading) {
     return (
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-primary text-2xl font-bold">
-            Recent Images
+            {title}
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Loading skeleton */}
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
@@ -66,31 +48,51 @@ export default function RecentImages() {
     );
   }
 
-  if (images.length === 0) {
+  if (error) {
     return (
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-primary text-2xl font-bold">
-            Recent Images
+            {title}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">No images generated yet.</p>
+          <p className="text-red-500">
+            Failed to fetch images, please try again later or refresh the page.
+          </p>
         </CardContent>
       </Card>
     );
   }
 
+  // If no images, show a message
+  if (!data?.images || data.images.length === 0) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-primary text-2xl font-bold">
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">No images available.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const images = data?.images.slice(0, imageLimit);
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-primary text-2xl font-bold">
-          Recent Images
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {images.map((img: ImageData, i: number) => (
+          {images?.map((img: ImageData, i: number) => (
             <div
               key={i}
               className="w-full aspect-[2/3] break-inside-avoid overflow-hidden rounded-lg bg-muted"

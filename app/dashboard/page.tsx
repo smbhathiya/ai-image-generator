@@ -1,16 +1,11 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
-import RecentImages from "./_components/RecentImages";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import ViewImages from "./_components/ViewImages";
 import Link from "next/link";
 import { IconCirclePlusFilled } from "@tabler/icons-react";
 
+// Helper function for greeting message
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning";
@@ -29,6 +24,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="m-4">
+        {/* Greeting and Create Button */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 mb-4">
           <h1 className="text-primary text-2xl sm:text-3xl lg:text-4xl font-bold">
             {isLoading ? (
@@ -41,31 +37,39 @@ export default function Dashboard() {
           </h1>
           {!isLoading && (
             <Link href="/dashboard/create-new">
-              <button
-                className="mt-4 sm:mt-0 inline-flex items-center justify-center rounded-md bg-primary text-white px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-primary/90 cursor-pointer"
-                onClick={() => {
-                  console.log("Create new clicked!");
-                }}
-              >
-                <IconCirclePlusFilled className=" mr-2" />
+              <button className="mt-4 sm:mt-0 inline-flex items-center justify-center rounded-md bg-primary text-white px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-primary/90 cursor-pointer">
+                <IconCirclePlusFilled className="mr-2" />
                 Create new
               </button>
             </Link>
           )}
         </div>
 
-        <RecentImages />
-      </div>
+        {/* Your Recent Images (user-specific) */}
+        <div className="mb-6">
+          {isLoading ? (
+            <Skeleton className="h-64 w-full rounded-xl" />
+          ) : (
+            <ViewImages
+              apiUrl="/api/user-recent-images"
+              title="Your Recent Images"
+              imageLimit={6}
+            />
+          )}
+        </div>
 
-      <div className="m-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-primary text-2xl font-bold">
-              History
-            </CardTitle>
-            <CardDescription>Coming soon</CardDescription>
-          </CardHeader>
-        </Card>
+        {/* Recent Images (general) */}
+        <div>
+          {isLoading ? (
+            <Skeleton className="h-64 w-full rounded-xl" />
+          ) : (
+            <ViewImages
+              apiUrl="/api/recent-images"
+              title="Recent Images"
+              imageLimit={6}
+            />
+          )}
+        </div>
       </div>
     </>
   );
