@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { HeroHeader } from "@/components/hero5-header";
 import { TextEffect } from "./ui/text-effect";
@@ -81,9 +82,10 @@ export default function HeroSection() {
               >
                 {isSignedIn ? (
                   <>
-                    <Link href="/dashboard">
+                    <Link href="/explorer">
                       <Button className="cursor-pointer " size="lg">
-                        Go to Dashboard <IconArrowBigRightFilled />
+                        Let&apos;s Create
+                        <IconArrowBigRightFilled />
                       </Button>
                     </Link>
                   </>

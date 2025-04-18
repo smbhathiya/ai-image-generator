@@ -14,12 +14,14 @@ function Dashboardlayout({ children }: { children: ReactNode }) {
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="floating" />
-        <SidebarInset>
-          <div className="sticky top-0 z-30 bg-background">
+        <AppSidebar variant="inset" />
+        <SidebarInset className="bg-sidebar">
+          <div className="sticky top-0 z-30">
             <SiteHeader />
           </div>
-          <div className="flex flex-1 flex-col">{children}</div>
+          <div className="flex flex-1 flex-col bg-background/50 rounded-2xl">
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </div>

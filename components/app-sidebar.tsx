@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconFileDescription,
-  IconLayoutDashboardFilled,
-  IconLibraryPhoto,
-} from "@tabler/icons-react";
+import { IconHistory, IconCompass, IconCirclePlus } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -22,44 +18,44 @@ import Link from "next/link";
 import SvgIcon from "./logo";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconLayoutDashboardFilled,
+      title: "Explorer",
+      url: "/explorer",
+      icon: IconCompass,
     },
     {
-      title: "Collection",
-      url: "/dashboard/collection",
-      icon: IconLibraryPhoto,
+      title: "Create New",
+      url: "/explorer/create-new",
+      icon: IconCirclePlus,
     },
     {
       title: "History",
-      url: "/dashboard/history",
-      icon: IconFileDescription,
+      url: "/explorer/history",
+      icon: IconHistory,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="p-0 h-auto">
-              <Link href="/" className="flex items-center gap-3 px-2 py-2">
+              <Link
+                href="/"
+                className="flex flex-col items-center gap-2 px-2 py-2"
+              >
                 <SvgIcon
-                  className="w-full h-full text-black dark:text-white fill-current"
-                  style={{ transform: "scale(1.8)" }}
+                  className="w-6 h-6 text-black dark:text-primary fill-current"
+                  style={{ transform: "scale(2.5)" }}
                 />
-                <span className="text-base font-bold dark:text-white text-black">
-                  AI IMAGE GENERATOR
+                <span className="mt-2 text-2xl font-bold text-center dark:text-primary text-black leading-tight">
+                  AI IMAGE
+                  <br />
+                  GENERATOR
                 </span>
               </Link>
             </SidebarMenuButton>

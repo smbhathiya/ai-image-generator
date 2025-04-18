@@ -23,8 +23,6 @@ export async function checkOrInsertUser({
     const db = await getDb();
     const result = await db.select().from(Users).where(eq(Users.email, email));
 
-    console.log("DB Query result:", result);
-
     if (result.length === 0) {
       console.log("Inserting new user");
       await db.insert(Users).values({

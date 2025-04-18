@@ -139,11 +139,6 @@ const CreateNew = () => {
                   >
                     <Download className="w-4 h-4 text-white" />
                   </button>
-                  {img.savedImage && (
-                    <span className="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                      Saved
-                    </span>
-                  )}
                 </div>
               ))}
           </div>
