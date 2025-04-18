@@ -1,7 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { IconFileDescription, IconLibraryPhoto } from "@tabler/icons-react";
+import {
+  IconFileDescription,
+  IconLibraryPhoto,
+  IconCirclePlus,
+} from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -27,7 +31,7 @@ const data = {
     {
       title: "Create New",
       url: "/explorer/create-new",
-      icon: IconLibraryPhoto,
+      icon: IconCirclePlus,
     },
     {
       title: "History",
@@ -39,7 +43,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
