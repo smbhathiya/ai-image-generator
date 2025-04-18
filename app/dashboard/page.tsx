@@ -8,9 +8,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Icon } from "lucide-react";
 import { IconCirclePlusFilled } from "@tabler/icons-react";
 
 function getGreeting() {
