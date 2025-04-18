@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconFileDescription,
-  IconLibraryPhoto,
-  IconCirclePlus,
-} from "@tabler/icons-react";
+import { IconHistory, IconCompass, IconCirclePlus } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -26,7 +22,7 @@ const data = {
     {
       title: "Explorer",
       url: "/explorer",
-      icon: IconLibraryPhoto,
+      icon: IconCompass,
     },
     {
       title: "Create New",
@@ -36,7 +32,7 @@ const data = {
     {
       title: "History",
       url: "/explorer/history",
-      icon: IconFileDescription,
+      icon: IconHistory,
     },
   ],
 };
@@ -56,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="w-6 h-6 text-black dark:text-primary fill-current"
                   style={{ transform: "scale(2.5)" }}
                 />
-                <span className="text-xl font-extrabold text-center dark:text-primary text-black leading-tight">
+                <span className="mt-2 text-2xl font-bold text-center dark:text-primary text-black leading-tight">
                   AI IMAGE
                   <br />
                   GENERATOR
