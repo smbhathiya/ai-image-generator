@@ -109,9 +109,9 @@ export default function Explorer() {
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-            {images.map((image: any) => (
+            {images.map((image: any, index: number) => (
               <div
-                key={image.id}
+                key={`${image.id}-${index}`}
                 className="break-inside-avoid overflow-hidden rounded-lg shadow-md"
               >
                 <img
