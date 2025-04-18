@@ -1,18 +1,19 @@
 "use client";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
-import ViewImages from "./_components/ViewImages";
 import Link from "next/link";
 import { IconCirclePlusFilled } from "@tabler/icons-react";
+import { useState, useEffect, useCallback } from "react";
 
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
 }
 
-export default function Dashboard() {
+export default function Explorer() {
   const { user } = useUser();
   const isLoading = !user;
   const userData = {
@@ -20,53 +21,117 @@ export default function Dashboard() {
   };
   const greeting = getGreeting();
 
+  const [images, setImages] = useState<any[]>([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+
+  const fetchImages = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/images-paginated?offset=${offset}&limit=10`
+      );
+      const data = await res.json();
+
+      if (data.length > 0) {
+        setImages((prevImages) => [...prevImages, ...data]);
+        setOffset((prevOffset) => prevOffset + 10);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Failed to load images:", error);
+    } finally {
+      setLoadingImages(false);
+    }
+  }, [offset]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      fetchImages();
+    }
+  }, [isLoading, fetchImages]);
+
+  const handleScroll = () => {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const bottom = document.documentElement.scrollHeight;
+
+    if (scrollPosition >= bottom - 100 && !loadingImages && hasMore) {
+      setLoadingImages(true);
+      fetchImages();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [loadingImages, hasMore]);
+
   return (
-    <>
-      <div className="m-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 mb-4">
-          <h1 className="text-primary text-2xl sm:text-3xl lg:text-4xl font-bold">
+    <div className="m-4">
+      <div className="bg-muted/40 backdrop-blur-md rounded-xl px-6 py-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm border border-muted">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mb-1 flex items-center gap-2">
             {isLoading ? (
               <Skeleton className="h-10 w-60" />
             ) : (
               <>
-                {greeting}, {userData.name} 👋
+                👋 {greeting},{" "}
+                <span className="text-muted-foreground">{userData.name}</span>
               </>
             )}
           </h1>
           {!isLoading && (
-            <Link href="/dashboard/create-new">
-              <button className="mt-4 sm:mt-0 inline-flex items-center justify-center rounded-md bg-primary text-white px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-primary/90 cursor-pointer">
-                <IconCirclePlusFilled className="mr-2" />
-                Create new
-              </button>
-            </Link>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Welcome back! Hope you're having a productive day
+            </p>
           )}
         </div>
 
-        <div className="mb-6">
-          {isLoading ? (
-            <Skeleton className="h-64 w-full rounded-xl" />
-          ) : (
-            <ViewImages
-              apiUrl="/api/user-recent-images"
-              title="Your Recent Images"
-              imageLimit={6}
-            />
-          )}
-        </div>
-
-        <div>
-          {isLoading ? (
-            <Skeleton className="h-64 w-full rounded-xl" />
-          ) : (
-            <ViewImages
-              apiUrl="/api/recent-images"
-              title="Recent Images"
-              imageLimit={6}
-            />
-          )}
-        </div>
+        {!isLoading && (
+          <Link href="/explorer/create-new">
+            <button className="mt-4 cursor-poi sm:mt-0 inline-flex items-center justify-center rounded-lg bg-primary text-white px-5 py-2.5 text-sm font-semibold shadow hover:bg-primary/90 transition-all duration-200">
+              <IconCirclePlusFilled className="mr-2" />
+              Create new
+            </button>
+          </Link>
+        )}
       </div>
-    </>
+
+      <div className="mb-6">
+        {isLoading ? (
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            {Array.from({ length: 10 }).map((_, idx) => (
+              <Skeleton key={idx} className="w-full h-[300px] rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            {images.map((image: any) => (
+              <div
+                key={image.id}
+                className="break-inside-avoid overflow-hidden rounded-lg shadow-md"
+              >
+                <img
+                  src={image.cloudinaryUrl}
+                  alt="Image"
+                  className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+            ))}
+
+            {loadingImages &&
+              Array.from({ length: 3 }).map((_, idx) => (
+                <Skeleton
+                  key={`loading-${idx}`}
+                  className="w-full h-[300px] rounded-lg"
+                />
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
