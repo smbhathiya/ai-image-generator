@@ -34,11 +34,13 @@ export default function Explorer() {
   const [offset, setOffset] = useState(0);
 
   const fetchImages = useCallback(async () => {
-    if (loadingImages) return; 
+    if (loadingImages) return;
     setLoadingImages(true);
 
     try {
-      const res = await fetch(`/api/images-paginated?offset=${offset}&limit=10`); 
+      const res = await fetch(
+        `/api/images-paginated?offset=${offset}&limit=10`
+      );
       const data = await res.json();
 
       if (data.length > 0) {
@@ -49,9 +51,9 @@ export default function Explorer() {
           );
           return [...prevImages, ...newImages];
         });
-        setOffset((prevOffset) => prevOffset + 10); 
+        setOffset((prevOffset) => prevOffset + 10);
       } else {
-        setHasMore(false); 
+        setHasMore(false);
       }
     } catch (error) {
       console.error("Failed to load images:", error);
@@ -77,19 +79,19 @@ export default function Explorer() {
   }, [handleScroll]);
 
   useEffect(() => {
-    fetchImages(); 
-  }, []); 
+    fetchImages();
+  }, []);
 
   return (
     <div className="m-4">
       <div className="bg-muted/40 backdrop-blur-md rounded-xl px-6 py-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm border border-muted">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary mb-1 flex items-center gap-2">
+          <h1 className="text-2xl sm:text-2xl font-extrabold text-primary mb-1 flex items-center gap-2">
             {isLoading ? (
               <Skeleton className="h-10 w-60" />
             ) : (
               <>
-                👋 {greeting},{" "}
+                {greeting},{" "}
                 <span className="text-muted-foreground">{userData.name}</span>
               </>
             )}
