@@ -68,7 +68,7 @@ export default function Explorer() {
 
     try {
       const res = await fetch(
-        `/api/images-paginated?offset=${offset}&limit=10`
+        `/api/images-paginated?offset=${offset}&limit=20`
       );
       const data = await res.json();
 
@@ -90,7 +90,7 @@ export default function Explorer() {
           );
           return [...prevImages, ...newImages];
         });
-        setOffset((prevOffset) => prevOffset + 10);
+        setOffset((prevOffset) => prevOffset + 20);
       } else {
         setHasMore(false);
       }
