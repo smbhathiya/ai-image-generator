@@ -6,6 +6,7 @@ import {
   IconCompass,
   IconCirclePlus,
   IconSparkles,
+  IconSettings,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -20,6 +21,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 
 const data = {
   navMain: [
@@ -42,6 +44,16 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { userId } = useAuth();
+  const adminNav = userId
+    ? [
+        {
+          title: "Manage",
+          url: "/explorer/manage",
+          icon: IconSettings,
+        },
+      ]
+    : [];
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -65,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={[...data.navMain, ...adminNav]} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
