@@ -37,7 +37,7 @@ export function NavMain({
                     className={`flex items-center gap-4 px-4 py-3 rounded-md transition-colors h-10
                       ${
                         isActive
-                          ? "bg-primary hover:bg-primary hover:text-white text-white"
+                          ? "dark:bg-muted dark:hover:bg-muted/50 dark:hover:text-white dark:text-white bg-neutral-200"
                           : ""
                       } 
                       cursor-pointer`}

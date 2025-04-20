@@ -47,16 +47,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="p-0 h-auto">
+            <SidebarMenuButton asChild className="p-4 h-auto">
               <Link
                 href="/"
-                className="flex flex-col items-center gap-2 px-2 py-2"
+                className="flex flex-row items-center gap-4 px-2 py-2"
               >
                 <IconSparkles
-                  className=" text-black dark:text-primary "
-                  style={{ transform: "scale(2.5)" }}
+                  className="text-primary"
+                  style={{ transform: "scale(1.5)" }}
                 />
-                <span className="mt-2 text-sm font-bold text-center dark:text-primary text-black leading-tight">
+                <span className="text-lg font-bold text-primary  leading-tight">
                   AI Image Generator
                 </span>
               </Link>
