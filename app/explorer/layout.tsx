@@ -15,7 +15,7 @@ function Dashboardlayout({ children }: { children: ReactNode }) {
         }
       >
         <AppSidebar variant="inset" />
-        <SidebarInset className="bg-sidebar flex flex-col h-full">
+        <SidebarInset className="bg-sidebar flex flex-col ">
           <div className="sticky top-0 z-30">
             <SiteHeader />
           </div>
