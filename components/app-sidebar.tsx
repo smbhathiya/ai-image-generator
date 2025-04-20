@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { IconHistory, IconCompass, IconCirclePlus } from "@tabler/icons-react";
+import {
+  IconHistory,
+  IconCompass,
+  IconCirclePlus,
+  IconSparkles,
+} from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -15,7 +20,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import SvgIcon from "./logo";
 
 const data = {
   navMain: [
@@ -48,14 +52,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 href="/"
                 className="flex flex-col items-center gap-2 px-2 py-2"
               >
-                <SvgIcon
-                  className="w-6 h-6 text-black dark:text-primary fill-current"
+                <IconSparkles
+                  className=" text-black dark:text-primary "
                   style={{ transform: "scale(2.5)" }}
                 />
-                <span className="mt-2 text-2xl font-bold text-center dark:text-primary text-black leading-tight">
-                  AI IMAGE
-                  <br />
-                  GENERATOR
+                <span className="mt-2 text-sm font-bold text-center dark:text-primary text-black leading-tight">
+                  AI Image Generator
                 </span>
               </Link>
             </SidebarMenuButton>

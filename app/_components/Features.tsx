@@ -1,18 +1,18 @@
-import { Sparkles, Wand2, Download } from "lucide-react";
+import { IconSparkles, IconWand, IconDownload } from "@tabler/icons-react";
 
 const features = [
   {
-    icon: <Wand2 className="w-6 h-6 text-primary" />,
+    icon: <IconWand className="w-6 h-6 text-primary" />,
     title: "AI-Powered",
     desc: "Uses advanced AI to generate stunning images from your input.",
   },
   {
-    icon: <Sparkles className="w-6 h-6 text-primary" />,
+    icon: <IconSparkles className="w-6 h-6 text-primary" />,
     title: "Fast & Easy",
     desc: "Get images in seconds with a clean and intuitive interface.",
   },
   {
-    icon: <Download className="w-6 h-6 text-primary" />,
+    icon: <IconDownload className="w-6 h-6 text-primary" />,
     title: "Download & Share",
     desc: "Download in high quality and share wherever you want.",
   },

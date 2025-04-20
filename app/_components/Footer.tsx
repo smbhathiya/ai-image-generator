@@ -1,4 +1,8 @@
-import { Github, Linkedin, Globe } from "lucide-react";
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconWorld,
+} from "@tabler/icons-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -12,7 +16,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="GitHub"
           >
-            <Github className="w-5 h-5 hover:text-primary transition-colors" />
+            <IconBrandGithub className="w-5 h-5 hover:text-primary transition-colors" />
           </Link>
           <Link
             href="https://linkedin.com/in/bhathiya-lakshan-91579722a"
@@ -20,7 +24,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="LinkedIn"
           >
-            <Linkedin className="w-5 h-5 hover:text-primary transition-colors" />
+            <IconBrandLinkedin className="w-5 h-5 hover:text-primary transition-colors" />
           </Link>
           <Link
             href="https://bhathiya.dev"
@@ -28,7 +32,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="Portfolio"
           >
-            <Globe className="w-5 h-5 hover:text-primary transition-colors" />
+            <IconWorld className="w-5 h-5 hover:text-primary transition-colors" />
           </Link>
         </div>
         <div>

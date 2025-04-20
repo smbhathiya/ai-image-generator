@@ -1,12 +1,9 @@
 "use client";
-
-import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { Spotlight } from "./SpotLight";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { IconArrowBigRight } from "@tabler/icons-react";
+import { IconArrowBigRight, IconSparkles } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
 
 export default function Hero() {
@@ -44,7 +41,7 @@ export default function Hero() {
 
       <div className="container px-4 max-w-3xl relative z-10">
         <div className="mb-4">
-          <Sparkles className="w-12 h-12 text-primary mx-auto animate-[bounce_3s_infinite]" />
+          <IconSparkles className="w-12 h-12 text-primary mx-auto animate-[bounce_3s_infinite]" />
         </div>
 
         <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-primary">

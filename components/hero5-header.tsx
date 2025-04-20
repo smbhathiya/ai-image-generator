@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import React from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { ModeToggle } from "./mode-toggle";
-import SvgIcon from "./logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IconSparkles } from "@tabler/icons-react";
 
 export const HeroHeader = () => {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -46,7 +46,7 @@ export const HeroHeader = () => {
               aria-label="home"
               className="flex items-center space-x-2"
             >
-              <SvgIcon className="w-8 h-8 text-primary text-bold fill-current" />
+              <IconSparkles className="w-8 h-8 text-primary text-bold fill-current" />
               <h2 className="font-bold text-xl text-primary">
                 AI Image Generator
               </h2>
