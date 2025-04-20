@@ -120,3 +120,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  @apply fixed top-0 left-0 w-full h-[3px] bg-primary z-[9999];
+  animation: nprogress-bar 1s ease-out forwards;
+}
+
+@keyframes nprogress-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}

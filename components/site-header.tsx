@@ -1,9 +1,10 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { UserButton, useUser } from "@clerk/nextjs";
+import {  useUser } from "@clerk/nextjs";
 import { ModeToggle } from "./mode-toggle";
 import { Skeleton } from "./ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function SiteHeader() {
   const { user } = useUser();
@@ -22,7 +23,13 @@ export function SiteHeader() {
           {isLoading ? (
             <Skeleton className="h-7 w-7 rounded-full" />
           ) : (
-            <UserButton />
+            <Avatar className="h-8 w-8 cursor-pointer">
+              <AvatarImage src={user?.imageUrl} />
+              <AvatarFallback>
+                {user?.firstName?.charAt(0)}
+                {user?.lastName?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
           )}
         </div>
       </div>

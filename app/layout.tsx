@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Provider from "./provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollToTopButton } from "./_components/ScrollToTopButton";
+import ProgressBar from "@/components/progress-bar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Provider>
+              <ProgressBar />
               {children}
               <ScrollToTopButton />
             </Provider>

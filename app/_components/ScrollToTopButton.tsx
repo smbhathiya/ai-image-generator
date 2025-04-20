@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { IconArrowBigUp, IconCircleArrowUpFilled } from "@tabler/icons-react";
+import { IconArrowBigUp } from "@tabler/icons-react";
 
 export const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,7 +30,7 @@ export const ScrollToTopButton = () => {
         isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
       )}
     >
-      {/* <Button
+      <Button
         onClick={scrollToTop}
         variant="outline"
         size="icon"
@@ -38,11 +38,7 @@ export const ScrollToTopButton = () => {
         aria-label="Scroll to top"
       >
         <IconArrowBigUp className="h-10 w-10" />
-      </Button> */}
-      <IconCircleArrowUpFilled
-        className="h-12 w-12 text-primary/50 hover:text-primary/80 hover:scale-105 duration-200"
-        onClick={scrollToTop}
-      />
+      </Button>
     </div>
   );
 };
