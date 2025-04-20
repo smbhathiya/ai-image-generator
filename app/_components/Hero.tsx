@@ -13,7 +13,7 @@ export default function Hero() {
 
   const handleClick = () => {
     setIsLoading(true);
-    router.push("explorer/create-new");
+    router.push("explorer");
   };
 
   const isDark = theme === "dark";

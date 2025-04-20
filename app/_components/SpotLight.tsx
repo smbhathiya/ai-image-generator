@@ -11,8 +11,8 @@ type SpotlightProps = {
 // Hook to get window size
 const useWindowSize = () => {
   const [windowSize, setWindowSize] = React.useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 1200,
-    height: typeof window !== "undefined" ? window.innerHeight : 800,
+    width: 1200, // Default for SSR
+    height: 800, // Default for SSR
   });
 
   React.useEffect(() => {
@@ -22,8 +22,8 @@ const useWindowSize = () => {
         height: window.innerHeight,
       });
     };
+    handleResize(); // Set initial size
     window.addEventListener("resize", handleResize);
-    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -36,13 +36,19 @@ export const Spotlight = ({
   gradientThird = "radial-gradient(60% 60% at 50% 50%, color-mix(in oklch, var(--primary) 6%, oklch(0.95 0.01 16.439)) 0, color-mix(in oklch, var(--primary) 2%, transparent) 85%, transparent 100%)",
 }: SpotlightProps = {}) => {
   const { width: windowWidth, height: windowHeight } = useWindowSize();
+  const [isMounted, setIsMounted] = React.useState(false);
 
-  // Dynamically calculate sizes based on viewport
-  const width = Math.min(300, windowWidth * 0.4); // 40% of viewport width, capped at 300px
-  const smallWidth = Math.min(150, windowWidth * 0.2); // 20% of viewport width, capped at 150px
-  const height = Math.min(600, windowHeight * 1.5); // 1.5x viewport height, capped at 600px
-  const translateY = -(windowHeight * 0.2); // 20% of viewport height
-  const xOffset = windowWidth * 0.1; // 10% of viewport width
+  // Set isMounted to true only on client-side
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Use static defaults for SSR, dynamic values only on client
+  const width = isMounted ? Math.min(300, windowWidth * 0.4) : 300;
+  const smallWidth = isMounted ? Math.min(150, windowWidth * 0.2) : 150;
+  const height = isMounted ? Math.min(600, windowHeight * 1.5) : 600;
+  const translateY = isMounted ? -(windowHeight * 0.2) : -160; // Match SSR value from error
+  const xOffset = isMounted ? windowWidth * 0.1 : 120; // Default based on 1200px width
   const duration = 7;
 
   return (
