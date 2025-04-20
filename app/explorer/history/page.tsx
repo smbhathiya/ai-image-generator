@@ -102,7 +102,7 @@ export default function History() {
           return [...prevImages, ...newImages];
         });
         setOffset((prevOffset) => prevOffset + data.length);
-        setHasMore(data.length === 10);
+        setHasMore(data.length === 20);
       } else {
         setHasMore(false);
       }
