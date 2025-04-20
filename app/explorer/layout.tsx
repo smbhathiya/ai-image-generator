@@ -5,7 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 function Dashboardlayout({ children }: { children: ReactNode }) {
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <SidebarProvider
         style={
           {
@@ -15,11 +15,19 @@ function Dashboardlayout({ children }: { children: ReactNode }) {
         }
       >
         <AppSidebar variant="inset" />
-        <SidebarInset className="bg-sidebar">
+        <SidebarInset className="bg-sidebar flex flex-col h-full">
           <div className="sticky top-0 z-30">
             <SiteHeader />
           </div>
-          <div className="flex flex-1 flex-col bg-background/50 rounded-2xl">
+          <div className="flex-1 bg-background/50 rounded-2xl overflow-y-auto overflow-x-hidden hide-scrollbar"  style={
+              {
+                scrollbarWidth: "none" /* Firefox */,
+                WebkitScrollbar: {
+                  display: "none",
+                } /* WebKit (Chrome, Safari, Edge) */,
+              } as React.CSSProperties
+            }>
+          
             {children}
           </div>
         </SidebarInset>
