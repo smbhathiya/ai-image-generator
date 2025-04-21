@@ -1,7 +1,7 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {  useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { ModeToggle } from "./mode-toggle";
 import { Skeleton } from "./ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,7 +20,7 @@ export function SiteHeader() {
         />
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
-          {isLoading ? (
+          {/* {isLoading ? (
             <Skeleton className="h-7 w-7 rounded-full" />
           ) : (
             <Avatar className="h-8 w-8 cursor-pointer">
@@ -30,7 +30,7 @@ export function SiteHeader() {
                 {user?.lastName?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-          )}
+          )} */}
         </div>
       </div>
     </header>
