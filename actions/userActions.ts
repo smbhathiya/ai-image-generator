@@ -39,8 +39,4 @@ export async function checkOrInsertUser({
   }
 }
 
-export async function getUsers() {
-  const db = await getDb();
-  const users = await db.select().from(Users);
-  return users;
-}
+

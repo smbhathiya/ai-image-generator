@@ -1,20 +1,41 @@
 "use server";
 
 import { getDb } from "@/configs/drizzle";
-import { desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import { Images } from "@/configs/schema";
 
-export async function getImagesPaginated(offset = 0, limit = 6) {
-  const db = await getDb();
+export type Images = typeof Images.$inferSelect;
+export type PaginatedImagesResult = {
+  images: Images[];
+  totalCount: number;
+};
 
-  const images = await db
-    .select()
-    .from(Images)
-    .orderBy(desc(Images.createdAt))
-    .offset(offset)
-    .limit(limit);
+export async function getImagesPaginated(
+  offset = 0,
+  limit = 10
+): Promise<PaginatedImagesResult> {
+  try {
+    const db = await getDb();
 
-  return images;
+    const images = await db
+      .select()
+      .from(Images)
+      .orderBy(desc(Images.createdAt))
+      .offset(offset)
+      .limit(limit);
+
+    const totalCountResult = await db
+      .select({ count: sql`count(*)` })
+      .from(Images);
+
+    const totalCount = Number(totalCountResult[0].count) || 0;
+
+    return {
+      images,
+      totalCount,
+    };
+  } catch (error) {
+    console.error("Error fetching paginated images:", error);
+    throw new Error("Failed to fetch images");
+  }
 }
-
-export default getImagesPaginated;

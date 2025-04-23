@@ -15,19 +15,21 @@ function Dashboardlayout({ children }: { children: ReactNode }) {
         }
       >
         <AppSidebar variant="inset" />
-        <SidebarInset className="bg-sidebar flex flex-col h-full">
-          <div className="sticky top-0 z-30">
+        <SidebarInset className="bg-sidebar flex flex-col ">
+          <div className="sticky top-0 z-30 bg-background/50 backdrop-blur-md rounded-b-2xl">
             <SiteHeader />
           </div>
-          <div className="flex-1 bg-background/50 rounded-2xl overflow-y-auto overflow-x-hidden hide-scrollbar"  style={
+          <div
+            className="flex-1 bg-background/50 rounded-2xl overflow-y-auto hide-scrollbar"
+            style={
               {
-                scrollbarWidth: "none" /* Firefox */,
+                scrollbarWidth: "none" ,
                 WebkitScrollbar: {
                   display: "none",
-                } /* WebKit (Chrome, Safari, Edge) */,
+                } ,
               } as React.CSSProperties
-            }>
-          
+            }
+          >
             {children}
           </div>
         </SidebarInset>
