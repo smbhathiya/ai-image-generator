@@ -7,7 +7,7 @@ import { IconCirclePlusFilled } from "@tabler/icons-react";
 import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { getImagesPaginated, type Images } from "@/actions/getImagesPaginated";
+import getImagesPaginated, { Images } from "@/actions/getImagesPaginated";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -130,12 +130,12 @@ export default function Explorer() {
 
   useEffect(() => {
     fetchImages();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleImageLoad = (id: number) => {
     setLoadingStates((prev) => ({
       ...prev,
-      [id.toString()]: false, // Convert number to string for consistency
+      [id.toString()]: false, 
     }));
   };
 
@@ -155,7 +155,7 @@ export default function Explorer() {
           </h1>
           {!isLoading && (
             <p className="text-muted-foreground text-sm sm:text-base">
-              Welcome back! Hope you're having a productive day
+              Welcome back! Hope you&apos;re having a productive day
             </p>
           )}
         </div>

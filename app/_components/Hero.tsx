@@ -4,11 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IconArrowBigRight, IconSparkles } from "@tabler/icons-react";
-import { useTheme } from "next-themes";
 
 export default function Hero() {
   const [isLoading, setIsLoading] = useState(false);
-  const { theme } = useTheme();
   const router = useRouter();
 
   const handleClick = () => {
@@ -16,7 +14,6 @@ export default function Hero() {
     router.push("explorer");
   };
 
-  const isDark = theme === "dark";
 
   return (
     <section className="flex items-center justify-center text-center min-h-screen py-24 overflow-hidden">

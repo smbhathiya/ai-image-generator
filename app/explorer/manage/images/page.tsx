@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
-import { getImagesPaginated, type Images } from "@/actions/getImagesPaginated";
+import getImagesPaginated, { type Images } from "@/actions/getImagesPaginated";
 import {
   Dialog,
   DialogContent,

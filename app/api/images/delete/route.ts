@@ -11,7 +11,7 @@ export async function DELETE(req: Request) {
   try {
     await deleteImageAction(id, cloudinaryId);
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }

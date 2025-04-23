@@ -7,7 +7,6 @@ import {
   IconCirclePlus,
   IconSparkles,
   IconSettings,
-  IconChartBar,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";

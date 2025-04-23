@@ -10,7 +10,7 @@ export type PaginatedImagesResult = {
   totalCount: number;
 };
 
-export async function getImagesPaginated(
+export default async function getImagesPaginated(
   offset = 0,
   limit = 10
 ): Promise<PaginatedImagesResult> {
