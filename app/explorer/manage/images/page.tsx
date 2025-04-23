@@ -1,4 +1,3 @@
-// app/manage-images/page.jsx
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
