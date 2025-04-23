@@ -38,3 +38,9 @@ export async function checkOrInsertUser({
     throw new Error("Failed to check or insert user");
   }
 }
+
+export async function getUsers() {
+  const db = await getDb();
+  const users = await db.select().from(Users);
+  return users;
+}
