@@ -9,7 +9,7 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 import { NavMain } from "@/components/nav-main";
 import { NavMenu } from "@/components/nav-secondary";
@@ -46,8 +46,11 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { userId } = useAuth();
+  const { user } = useUser();
 
-  const adminNav = userId
+  const isAdmin = user?.publicMetadata?.role === "admin";
+
+  const adminNav = userId && isAdmin
     ? [
         {
           title: "Manage",
