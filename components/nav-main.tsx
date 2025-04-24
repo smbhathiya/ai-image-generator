@@ -42,8 +42,11 @@ export function NavMain({
                       } 
                       cursor-pointer`}
                   >
-                    {item.icon && <item.icon className="h-5 w-5" />}
-                    <span>{item.title}</span>
+                    {item.icon && (
+                      <item.icon className="h-5 w-5 min-w-[20px] min-h-[20px]" />
+                    )}
+
+                    <span className="text-sm">{item.title}</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

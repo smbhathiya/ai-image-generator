@@ -22,7 +22,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
       };
 
       try {
-        await fetch("/api/check-or-insert-user", {
+        await fetch("/api/user/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

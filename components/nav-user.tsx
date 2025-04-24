@@ -24,12 +24,14 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useClerk, useUser } from "@clerk/nextjs";
+import { useTheme } from "next-themes";
+import { dark } from "@clerk/themes";
 
 export function NavUser() {
   const { user } = useUser();
   const { signOut, openUserProfile } = useClerk();
   const { isMobile } = useSidebar();
-
+  const { resolvedTheme } = useTheme();
   const isLoading = !user;
 
   const userData = {
@@ -99,7 +101,15 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => openUserProfile()}>
+              <DropdownMenuItem
+                onClick={() =>
+                  openUserProfile({
+                    appearance: {
+                      baseTheme: resolvedTheme === "dark" ? dark : undefined,
+                    },
+                  })
+                }
+              >
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>

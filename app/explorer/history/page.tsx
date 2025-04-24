@@ -143,7 +143,7 @@ export default function History() {
 
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [fetchImages]);
 
   return (
     <div className="m-4" ref={containerRef}>

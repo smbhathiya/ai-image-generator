@@ -167,7 +167,7 @@ const CreateNew = () => {
 
             <div className="flex flex-col items-center justify-center p-6">
               <div className="relative w-[70vh] h-[70vh] max-w-full max-h-full overflow-hidden rounded-xl bg-primary">
-                <img
+                <Image
                   src={
                     selectedImage.savedImage?.cloudinaryUrl ||
                     `data:image/png;base64,${selectedImage.image}`

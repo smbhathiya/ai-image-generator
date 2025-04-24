@@ -6,9 +6,13 @@ import {
   IconCompass,
   IconCirclePlus,
   IconSparkles,
+  IconSettings,
 } from "@tabler/icons-react";
+import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 
 import { NavMain } from "@/components/nav-main";
+import { NavMenu } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -19,7 +23,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 
 const data = {
   navMain: [
@@ -42,6 +45,22 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { userId } = useAuth();
+
+  const adminNav = userId
+    ? [
+        {
+          title: "Manage",
+          icon: IconSettings,
+          children: [
+            { title: "Users", url: "/explorer/manage/users" },
+            { title: "Images", url: "/explorer/manage/images" },
+          ],
+          isAdminOnly: true,
+        },
+      ]
+    : [];
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -56,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="text-primary"
                   style={{ transform: "scale(1.5)" }}
                 />
-                <span className="text-lg font-bold text-primary  leading-tight">
+                <span className="text-lg font-bold text-primary leading-tight">
                   AI Image Generator
                 </span>
               </Link>
@@ -64,9 +83,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <NavMenu items={adminNav} />
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>

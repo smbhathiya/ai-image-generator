@@ -4,20 +4,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { IconCirclePlusFilled } from "@tabler/icons-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
+import getImagesPaginated, { Images } from "@/actions/getImagesPaginated";
 
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return "Good Morning";
   if (hour < 18) return "Good Afternoon";
   return "Good Evening";
-}
-
-interface ImageData {
-  id: string;
-  cloudinaryUrl: string;
-  [key: string]: unknown;
 }
 
 export default function Explorer() {
@@ -28,16 +24,17 @@ export default function Explorer() {
   };
   const greeting = getGreeting();
 
-  const [images, setImages] = useState<ImageData[]>([]);
-  const [loadingImages, setLoadingImages] = useState(false);
+  const [images, setImages] = useState<Images[]>([]);
+  const [isPending, startTransition] = useTransition();
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
+  const [hasFetched, setHasFetched] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const limit = 20;
 
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
   );
-
   const [columnCount, setColumnCount] = useState(4);
 
   useEffect(() => {
@@ -50,8 +47,6 @@ export default function Explorer() {
         setColumnCount(3);
       } else if (window.innerWidth < 1536) {
         setColumnCount(4);
-      } else if (window.innerWidth < 1920) {
-        setColumnCount(5);
       } else {
         setColumnCount(5);
       }
@@ -62,44 +57,49 @@ export default function Explorer() {
     return () => window.removeEventListener("resize", updateColumnCount);
   }, []);
 
-  const fetchImages = useCallback(async () => {
-    if (loadingImages) return;
-    setLoadingImages(true);
+  const fetchImages = useCallback(() => {
+    if (isPending) return;
 
-    try {
-      const res = await fetch(
-        `/api/images-paginated?offset=${offset}&limit=20`
-      );
-      const data = await res.json();
+    startTransition(async () => {
+      try {
+        const { images: newImages, totalCount } = await getImagesPaginated(
+          offset,
+          limit
+        );
 
-      if (data.length > 0) {
-        const newLoadingStates: Record<string, boolean> = {};
-        data.forEach((img: ImageData) => {
-          newLoadingStates[img.id] = true;
-        });
+        if (newImages.length > 0) {
+          const newLoadingStates: Record<string, boolean> = {};
+          newImages.forEach((img) => {
+            newLoadingStates[img.id.toString()] = true;
+          });
 
-        setLoadingStates((prev) => ({
-          ...prev,
-          ...newLoadingStates,
-        }));
+          setLoadingStates((prev) => ({
+            ...prev,
+            ...newLoadingStates,
+          }));
 
-        setImages((prevImages) => {
-          const newImages = data.filter(
-            (newImage: ImageData) =>
-              !prevImages.some((image) => image.id === newImage.id)
-          );
-          return [...prevImages, ...newImages];
-        });
-        setOffset((prevOffset) => prevOffset + 20);
-      } else {
-        setHasMore(false);
+          setImages((prevImages) => {
+            const uniqueImages = newImages.filter(
+              (newImage) =>
+                !prevImages.some((image) => image.id === newImage.id)
+            );
+            return [...prevImages, ...uniqueImages];
+          });
+
+          setOffset((prevOffset) => prevOffset + limit);
+          setHasMore(offset + limit < totalCount);
+        } else {
+          setHasMore(false);
+        }
+
+        setHasFetched(true);
+      } catch (error) {
+        console.error("Failed to load images:", error);
+        toast.error("Failed to load images. Please try again.");
+        setHasFetched(true);
       }
-    } catch (error) {
-      console.error("Failed to load images:", error);
-    } finally {
-      setLoadingImages(false);
-    }
-  }, [offset, loadingImages]);
+    });
+  }, [offset, isPending, limit]);
 
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
@@ -113,10 +113,10 @@ export default function Explorer() {
       scrollContainer.scrollTop + scrollContainer.clientHeight;
     const bottom = scrollContainer.scrollHeight;
 
-    if (scrollPosition >= bottom - 100 && !loadingImages && hasMore) {
+    if (scrollPosition >= bottom - 100 && !isPending && hasMore) {
       fetchImages();
     }
-  }, [loadingImages, hasMore, fetchImages]);
+  }, [isPending, hasMore, fetchImages]);
 
   useEffect(() => {
     const scrollContainer = containerRef.current?.closest(
@@ -124,20 +124,18 @@ export default function Explorer() {
     ) as HTMLElement;
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);
-      return () => {
-        scrollContainer.removeEventListener("scroll", handleScroll);
-      };
+      return () => scrollContainer.removeEventListener("scroll", handleScroll);
     }
   }, [handleScroll]);
 
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [fetchImages]);
 
-  const handleImageLoad = (id: string) => {
+  const handleImageLoad = (id: number) => {
     setLoadingStates((prev) => ({
       ...prev,
-      [id]: false,
+      [id.toString()]: false,
     }));
   };
 
@@ -173,9 +171,14 @@ export default function Explorer() {
       </div>
 
       <div className="mb-6">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-4">
-            {Array.from({ length: 10 }).map((_, idx) => (
+        {isLoading || (isPending && !hasFetched) ? (
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4`}
+            style={{
+              gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+            }}
+          >
+            {Array.from({ length: columnCount * 2 }).map((_, idx) => (
               <Skeleton key={idx} className="w-full h-64 rounded-lg" />
             ))}
           </div>
@@ -190,10 +193,12 @@ export default function Explorer() {
                       key={image.id}
                       className="overflow-hidden rounded-lg shadow-md relative"
                       style={{
-                        minHeight: loadingStates[image.id] ? "200px" : "auto",
+                        minHeight: loadingStates[image.id.toString()]
+                          ? "200px"
+                          : "auto",
                       }}
                     >
-                      {loadingStates[image.id] && (
+                      {loadingStates[image.id.toString()] && (
                         <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
                       )}
                       <Image
@@ -202,7 +207,9 @@ export default function Explorer() {
                         width={500}
                         height={300}
                         className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
-                          loadingStates[image.id] ? "opacity-0" : "opacity-100"
+                          loadingStates[image.id.toString()]
+                            ? "opacity-0"
+                            : "opacity-100"
                         }`}
                         onLoad={() => handleImageLoad(image.id)}
                         onError={() => handleImageLoad(image.id)}
@@ -210,15 +217,15 @@ export default function Explorer() {
                     </div>
                   ))}
 
-                {loadingImages && colIndex < Math.min(2, columnCount) && (
-                  <Skeleton className="w-full h-64 rounded-lg" />
-                )}
+                {isPending &&
+                  colIndex < Math.min(2, columnCount) &&
+                  hasFetched && <Skeleton className="w-full h-64 rounded-lg" />}
               </div>
             ))}
           </div>
         )}
 
-        {!loadingImages && images.length === 0 && !isLoading && (
+        {!isPending && images.length === 0 && !isLoading && hasFetched && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
               No images found. Create your first image!
