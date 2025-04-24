@@ -70,7 +70,7 @@ export default function Explorer() {
         if (newImages.length > 0) {
           const newLoadingStates: Record<string, boolean> = {};
           newImages.forEach((img) => {
-            newLoadingStates[img.id.toString()] = true; 
+            newLoadingStates[img.id.toString()] = true;
           });
 
           setLoadingStates((prev) => ({
@@ -130,12 +130,12 @@ export default function Explorer() {
 
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [fetchImages]);
 
   const handleImageLoad = (id: number) => {
     setLoadingStates((prev) => ({
       ...prev,
-      [id.toString()]: false, 
+      [id.toString()]: false,
     }));
   };
 
