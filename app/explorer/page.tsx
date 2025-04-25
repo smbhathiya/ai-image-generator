@@ -30,6 +30,7 @@ export default function Explorer() {
   const [offset, setOffset] = useState(0);
   const [hasFetched, setHasFetched] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const fetchingRef = useRef(false); // Ref to track active fetches
   const limit = 20;
 
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
@@ -58,7 +59,11 @@ export default function Explorer() {
   }, []);
 
   const fetchImages = useCallback(() => {
-    if (isPending) return;
+    // Prevent multiple concurrent fetch requests
+    if (isPending || fetchingRef.current || !hasMore) return;
+
+    // Set fetching flag to true
+    fetchingRef.current = true;
 
     startTransition(async () => {
       try {
@@ -97,23 +102,33 @@ export default function Explorer() {
         console.error("Failed to load images:", error);
         toast.error("Failed to load images. Please try again.");
         setHasFetched(true);
+      } finally {
+        // Reset fetching flag when done
+        fetchingRef.current = false;
       }
     });
-  }, [offset, isPending, limit]);
+  }, [offset, isPending, limit, hasMore]);
 
+  // Improved scroll handler with throttling
   const handleScroll = useCallback(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || fetchingRef.current) return;
 
     const scrollContainer = containerRef.current.closest(
       ".overflow-y-auto"
     ) as HTMLElement;
     if (!scrollContainer) return;
 
+    // Improved bottom detection with a bigger buffer
     const scrollPosition =
       scrollContainer.scrollTop + scrollContainer.clientHeight;
-    const bottom = scrollContainer.scrollHeight;
+    const scrollThreshold = scrollContainer.scrollHeight - 300; // Increased threshold
 
-    if (scrollPosition >= bottom - 100 && !isPending && hasMore) {
+    if (
+      scrollPosition >= scrollThreshold &&
+      hasMore &&
+      !isPending &&
+      !fetchingRef.current
+    ) {
       fetchImages();
     }
   }, [isPending, hasMore, fetchImages]);
@@ -122,9 +137,20 @@ export default function Explorer() {
     const scrollContainer = containerRef.current?.closest(
       ".overflow-y-auto"
     ) as HTMLElement;
+
     if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll);
-      return () => scrollContainer.removeEventListener("scroll", handleScroll);
+      // Add debounce for scroll event
+      let scrollTimeout: NodeJS.Timeout;
+      const debouncedScroll = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(handleScroll, 100);
+      };
+
+      scrollContainer.addEventListener("scroll", debouncedScroll);
+      return () => {
+        clearTimeout(scrollTimeout);
+        scrollContainer.removeEventListener("scroll", debouncedScroll);
+      };
     }
   }, [handleScroll]);
 
@@ -216,12 +242,20 @@ export default function Explorer() {
                       />
                     </div>
                   ))}
-
-                {isPending &&
-                  colIndex < Math.min(2, columnCount) &&
-                  hasFetched && <Skeleton className="w-full h-64 rounded-lg" />}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Loading indicator at bottom */}
+        {isPending && hasMore && hasFetched && (
+          <div className="w-full flex justify-center mt-6">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm text-muted-foreground">
+                Loading more images...
+              </span>
+            </div>
           </div>
         )}
 

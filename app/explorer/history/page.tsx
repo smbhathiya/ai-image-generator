@@ -21,6 +21,7 @@ export default function History() {
   const [offset, setOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [randomHeights, setRandomHeights] = useState<number[]>([]);
+  const fetchingRef = useRef(false); // Ref to track active fetches
 
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
@@ -71,7 +72,11 @@ export default function History() {
   };
 
   const fetchImages = useCallback(async () => {
-    if (loadingImages || !hasMore) return;
+    // Prevent multiple concurrent fetch requests
+    if (loadingImages || !hasMore || fetchingRef.current) return;
+
+    // Set fetching flag to true
+    fetchingRef.current = true;
     setLoadingImages(true);
 
     try {
@@ -102,7 +107,7 @@ export default function History() {
           return [...prevImages, ...newImages];
         });
         setOffset((prevOffset) => prevOffset + data.length);
-        setHasMore(data.length === 20);
+        setHasMore(data.length === 10); // Changed from 20 to 10 to match the limit in fetch
       } else {
         setHasMore(false);
       }
@@ -110,11 +115,20 @@ export default function History() {
       console.error("Failed to load images:", error);
     } finally {
       setLoadingImages(false);
+      // Reset fetching flag when done
+      fetchingRef.current = false;
     }
   }, [offset, loadingImages, hasMore]);
 
+  // Improved scroll handler with proper throttling
   const handleScroll = useCallback(() => {
-    if (!containerRef.current || !hasMore || loadingImages) return;
+    if (
+      !containerRef.current ||
+      !hasMore ||
+      loadingImages ||
+      fetchingRef.current
+    )
+      return;
 
     const scrollContainer = containerRef.current.closest(
       ".overflow-y-auto"
@@ -122,7 +136,7 @@ export default function History() {
     if (!scrollContainer) return;
 
     const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
-    const scrolledToBottom = scrollTop + clientHeight >= scrollHeight - 300;
+    const scrolledToBottom = scrollTop + clientHeight >= scrollHeight - 400; // Increased threshold
 
     if (scrolledToBottom) {
       fetchImages();
@@ -133,10 +147,19 @@ export default function History() {
     const scrollContainer = containerRef.current?.closest(
       ".overflow-y-auto"
     ) as HTMLElement;
+
     if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll);
+      // Add debounce for scroll event
+      let scrollTimeout: NodeJS.Timeout;
+      const debouncedScroll = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(handleScroll, 100);
+      };
+
+      scrollContainer.addEventListener("scroll", debouncedScroll);
       return () => {
-        scrollContainer.removeEventListener("scroll", handleScroll);
+        clearTimeout(scrollTimeout);
+        scrollContainer.removeEventListener("scroll", debouncedScroll);
       };
     }
   }, [handleScroll]);
@@ -168,7 +191,7 @@ export default function History() {
             : images.map((image) => (
                 <div
                   key={image.id}
-                  className="break-inside-avoid overflow-hidden rounded-lg shadow-md relative"
+                  className="break-inside-avoid overflow-hidden rounded-lg shadow-md relative mb-4"
                 >
                   {/* Skeleton overlay while loading */}
                   {loadingStates[image.id] && (
@@ -191,6 +214,18 @@ export default function History() {
                 </div>
               ))}
         </div>
+
+        {/* Loading indicator at bottom */}
+        {loadingImages && images.length > 0 && hasMore && (
+          <div className="w-full flex justify-center my-6">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm text-muted-foreground">
+                Loading more images...
+              </span>
+            </div>
+          </div>
+        )}
 
         {!loadingImages && images.length === 0 && !isLoading && (
           <div className="text-center py-12">

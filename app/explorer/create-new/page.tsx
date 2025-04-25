@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Download, X } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 interface ImageResponse {
   image: string;
@@ -26,12 +28,12 @@ interface ImageResponse {
 const CreateNew = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState<ImageResponse[]>([]);
-  const [responseText, setResponseText] = useState("");
-  const [error, setError] = useState("");
-  const [selectedImage, setSelectedImage] = useState<ImageResponse | null>(
+  const [generatedImage, setGeneratedImage] = useState<ImageResponse | null>(
     null
   );
+  const [responseText, setResponseText] = useState("");
+  const [error, setError] = useState("");
+  const [viewingFullSize, setViewingFullSize] = useState(false);
 
   const fetchImage = async (prompt: string) => {
     const res = await fetch("/api/generate-images", {
@@ -43,44 +45,56 @@ const CreateNew = () => {
   };
 
   const generateImage = useCallback(async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt first");
+      return;
+    }
 
     setLoading(true);
-    setImages([]);
+    setGeneratedImage(null);
     setResponseText("");
     setError("");
 
     try {
-      const results = await Promise.all([
-        fetchImage(prompt),
-        fetchImage(prompt),
-      ]);
-      const validResponses = results.filter((res) => res?.image);
+      const result = await fetchImage(prompt);
 
-      if (validResponses.length > 0) {
-        setImages(validResponses as ImageResponse[]);
-        setResponseText(validResponses[0].text || "");
+      if (result?.image) {
+        setGeneratedImage(result);
+        setResponseText(result.text || "");
+        toast.success("Image generated successfully!");
       } else {
-        setError(results[0]?.error || "Something went wrong");
+        setError(result?.error || "Something went wrong");
+        toast.error("Failed to generate image. Please try again.");
       }
     } catch (err) {
       console.error(err);
       setError("Failed to connect to the API");
+      toast.error("Failed to connect to the API. Please try again later.");
     } finally {
       setLoading(false);
     }
   }, [prompt]);
 
-  const downloadImage = (image: string, index: number) => {
+  const downloadImage = () => {
+    if (!generatedImage?.image) return;
+
+    // Generate a unique ID for the download
+    const uniqueId =
+      Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
+
     const a = document.createElement("a");
-    a.href = `data:image/png;base64,${image}`;
-    a.download = `ai-generated-image-${index + 1}.png`;
+    a.href = `data:image/png;base64,${generatedImage.image}`;
+    a.download = `ai-generated-image-${uniqueId}.png`;
     a.click();
+
+    toast.success("Image downloaded successfully!");
   };
 
   return (
     <div className="m-4">
-      <Card>
+      <Toaster />
+
+      <Card className="border-0">
         <CardHeader>
           <CardTitle className="text-primary text-2xl font-bold">
             Create New Image
@@ -95,52 +109,50 @@ const CreateNew = () => {
             placeholder="Enter your prompt here..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
+            className="min-h-24"
           />
 
           <Button className="mt-4" onClick={generateImage} disabled={loading}>
-            {loading ? "Generating..." : "Generate Images"}
+            {loading ? "Generating..." : "Generate Image"}
           </Button>
 
           {error && <p className="text-red-500 mt-4">{error}</p>}
 
-          <div className="mt-6 flex flex-row gap-4 flex-wrap">
-            {loading &&
-              Array.from({ length: 2 }).map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className="w-64 h-64 rounded-2xl aspect-square"
-                />
-              ))}
+          <div className="mt-6 flex flex-col items-center">
+            {loading && (
+              <Skeleton className="w-full max-w-md h-64 rounded-lg aspect-auto" />
+            )}
 
-            {!loading &&
-              images.map((img, i) => (
+            {!loading && generatedImage && (
+              <div className="relative w-full max-w-md cursor-pointer">
                 <div
-                  key={i}
-                  className="relative w-64 h-64 cursor-pointer"
-                  onClick={() => setSelectedImage(img)}
+                  className="relative overflow-hidden rounded-lg"
+                  onClick={() => setViewingFullSize(true)}
                 >
                   <Image
                     src={
-                      img.savedImage?.cloudinaryUrl ||
-                      `data:image/png;base64,${img.image}`
+                      generatedImage.savedImage?.cloudinaryUrl ||
+                      `data:image/png;base64,${generatedImage.image}`
                     }
-                    alt={`Generated Image ${i + 1}`}
-                    width={256}
-                    height={256}
-                    className="rounded-2xl border object-cover aspect-square"
+                    alt="Generated Image"
+                    width={512}
+                    height={512}
+                    className="w-full h-auto object-contain rounded-lg shadow-md"
                   />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      downloadImage(img.image, i);
-                    }}
-                    className="absolute top-2 right-2 bg-primary p-2 rounded-full shadow hover:bg-primary/80 transition"
-                    title="Download"
-                  >
-                    <Download className="w-4 h-4 text-white" />
-                  </button>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 text-center">
+                    Click to view Image
+                  </div>
                 </div>
-              ))}
+                <Button
+                  onClick={downloadImage}
+                  className="mt-4 w-full"
+                  variant="secondary"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Image
+                </Button>
+              </div>
+            )}
           </div>
 
           {responseText && (
@@ -149,42 +161,43 @@ const CreateNew = () => {
         </CardContent>
       </Card>
 
-      {selectedImage && (
+      {viewingFullSize && generatedImage && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+          onClick={() => setViewingFullSize(false)}
         >
           <div
-            className="relative max-w-[90vw] max-h-[90vh] w-auto bg-accent rounded-2xl overflow-hidden shadow-lg"
+            className="relative max-w-[95vw] max-h-[95vh] bg-background rounded-xl overflow-hidden shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 p-2 hover:text-primary-foreground text-primary-foreground cursor-pointer rounded-full z-10"
+              onClick={() => setViewingFullSize(false)}
+              className="absolute top-4 right-4 p-2 bg-background/80 hover:bg-primary text-foreground hover:text-white cursor-pointer rounded-full z-10 shadow-lg"
             >
               <X className="w-6 h-6" />
             </button>
 
-            <div className="flex flex-col items-center justify-center p-6">
-              <div className="relative w-[70vh] h-[70vh] max-w-full max-h-full overflow-hidden rounded-xl bg-primary">
+            <div className="flex flex-col items-center justify-center p-4">
+              <div className="w-auto h-auto max-w-full max-h-[80vh] overflow-hidden">
                 <Image
                   src={
-                    selectedImage.savedImage?.cloudinaryUrl ||
-                    `data:image/png;base64,${selectedImage.image}`
+                    generatedImage.savedImage?.cloudinaryUrl ||
+                    `data:image/png;base64,${generatedImage.image}`
                   }
-                  alt="Selected Image"
-                  className="object-cover w-full h-full rounded-xl"
+                  alt="Generated Image"
+                  width={1024}
+                  height={1024}
+                  className="object-contain w-auto h-auto"
                 />
               </div>
 
               <Button
-                className="mt-6 w-full max-w-xs text-white font-bold"
-                onClick={() =>
-                  downloadImage(
-                    selectedImage.image,
-                    images.indexOf(selectedImage)
-                  )
-                }
+                className="mt-6 w-full max-w-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  downloadImage();
+                  setViewingFullSize(false);
+                }}
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download Image
