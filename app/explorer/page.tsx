@@ -167,29 +167,34 @@ export default function Explorer() {
 
   return (
     <div className="m-4" ref={containerRef}>
-      <div className="bg-muted/40 backdrop-blur-md rounded-xl px-6 py-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm border border-muted">
+      <div className="bg-muted/40 backdrop-blur-md rounded-xl p-4 sm:px-6 sm:py-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm border border-muted">
         <div>
-          <h1 className="text-2xl sm:text-2xl font-extrabold text-primary mb-1 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-primary mb-1 flex flex-wrap items-center gap-2">
             {isLoading ? (
-              <Skeleton className="h-10 w-60" />
+              <Skeleton className="h-8 sm:h-10 w-40 sm:w-60" />
             ) : (
               <>
                 {greeting},{" "}
-                <span className="text-muted-foreground">{userData.name}</span>
+                <span className="text-muted-foreground break-words">
+                  {userData.name}
+                </span>
               </>
             )}
           </h1>
           {!isLoading && (
-            <p className="text-muted-foreground text-sm sm:text-base">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
               Welcome back! Hope you&apos;re having a productive day
             </p>
           )}
         </div>
 
         {!isLoading && (
-          <Link href="/explorer/create-new">
-            <button className="mt-4 cursor-pointer sm:mt-0 inline-flex items-center justify-center rounded-lg bg-primary text-white px-5 py-2.5 text-sm font-semibold shadow hover:bg-primary/90 transition-all duration-200">
-              <IconCirclePlusFilled className="mr-2" />
+          <Link
+            href="/explorer/create-new"
+            className="mt-4 sm:mt-0 block sm:inline-block"
+          >
+            <button className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-primary text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold shadow hover:bg-primary/90 transition-all duration-200">
+              <IconCirclePlusFilled className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               Create new
             </button>
           </Link>
