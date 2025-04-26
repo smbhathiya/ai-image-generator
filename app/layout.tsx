@@ -6,6 +6,7 @@ import Provider from "./provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollToTopButton } from "./_components/ScrollToTopButton";
 import ProgressBar from "@/components/progress-bar";
+import ClientLayout from "@/components/client-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,11 +40,14 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Provider>
-              <ProgressBar />
-              {children}
-              <ScrollToTopButton />
-            </Provider>
+            <ClientLayout>
+              <Provider>
+                <ProgressBar />
+
+                {children}
+                <ScrollToTopButton />
+              </Provider>
+            </ClientLayout>
           </ThemeProvider>
         </body>
       </html>
