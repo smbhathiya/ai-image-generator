@@ -4,10 +4,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 interface ImageData {
   id: string;
   blobUrl: string;
+  prompt: string;
+  createdAt: string;
   [key: string]: unknown;
 }
 
@@ -20,42 +25,21 @@ export default function History() {
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [randomHeights, setRandomHeights] = useState<number[]>([]);
   const fetchingRef = useRef(false); // Ref to track active fetches
 
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
   );
-  const [columnCount, setColumnCount] = useState(4);
 
-  useEffect(() => {
-    const heights = Array.from({ length: 10 }).map(
-      () => 200 + Math.floor(Math.random() * 200)
-    );
-    setRandomHeights(heights);
-  }, []);
-
-  useEffect(() => {
-    const updateColumnCount = () => {
-      if (window.innerWidth < 640) {
-        setColumnCount(1);
-      } else if (window.innerWidth < 1024) {
-        setColumnCount(2);
-      } else if (window.innerWidth < 1280) {
-        setColumnCount(3);
-      } else if (window.innerWidth < 1536) {
-        setColumnCount(4);
-      } else if (window.innerWidth < 1920) {
-        setColumnCount(5);
-      } else {
-        setColumnCount(5);
-      }
-    };
-
-    updateColumnCount();
-    window.addEventListener("resize", updateColumnCount);
-    return () => window.removeEventListener("resize", updateColumnCount);
-  }, []);
+  const copyPrompt = async (prompt: string) => {
+    try {
+      await navigator.clipboard.writeText(prompt);
+      toast.success("Prompt copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy prompt:", err);
+      toast.error("Failed to copy prompt");
+    }
+  };
 
   const handleImageLoad = (id: string) => {
     setLoadingStates((prev) => ({
@@ -169,48 +153,109 @@ export default function History() {
   }, [fetchImages]);
 
   return (
-    <div className="m-4" ref={containerRef}>
-      <div className="mb-6">
-        <div
-          className={`columns-1 ${columnCount >= 2 ? "sm:columns-2" : ""} ${
-            columnCount >= 3 ? "lg:columns-3" : ""
-          } ${columnCount >= 4 ? "xl:columns-4" : ""} ${
-            columnCount >= 5 ? "2xl:columns-5" : ""
-          } gap-4 space-y-4`}
-        >
+    <div className="m-4 pb-32" ref={containerRef}>
+      <Toaster position="top-center" />
+
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-muted/40 backdrop-blur-md rounded-xl p-4 sm:px-6 sm:py-5 mb-6 shadow-sm border border-muted">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-primary mb-1">
+            Your Image History
+          </h1>
+          <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
+            Browse and copy prompts from your previously generated images
+          </p>
+        </div>
+
+        <div className="space-y-4">
           {(loadingImages || isLoading) && images.length === 0
-            ? randomHeights.map((height, idx) => (
+            ? Array.from({ length: 3 }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="break-inside-avoid overflow-hidden rounded-lg shadow-md bg-muted"
-                  style={{ height: `${height}px` }}
+                  className="rounded-xl bg-popover/90 backdrop-blur-md border border-border shadow-lg p-4"
                 >
-                  <Skeleton className="w-full h-full rounded-lg" />
+                  <div className="flex items-start gap-3 mb-3">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-32 mb-2" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                  </div>
+                  <Skeleton className="w-full h-3 mb-3" />
+                  <Skeleton className="w-full h-48 rounded-lg" />
                 </div>
               ))
             : images.map((image) => (
                 <div
                   key={image.id}
-                  className="break-inside-avoid overflow-hidden rounded-lg shadow-md relative mb-4"
+                  className="rounded-xl bg-popover/90 backdrop-blur-md border border-border shadow-lg overflow-hidden"
                 >
-                  {/* Skeleton overlay while loading */}
-                  {loadingStates[image.id] && (
-                    <div className="absolute inset-0 z-0">
-                      <Skeleton className="w-full h-full rounded-lg" />
+                  {/* Header with timestamp and copy button */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-primary text-sm font-semibold">
+                            AI
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">
+                            AI Generated Image
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(image.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => copyPrompt(image.prompt)}
+                        className="p-2 hover:bg-muted rounded-full transition-colors"
+                        aria-label="Copy prompt"
+                      >
+                        <Copy className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                      </button>
                     </div>
-                  )}
 
-                  <Image
-                    src={image.blobUrl as string}
-                    alt="Image"
-                    width={500}
-                    height={300}
-                    className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 relative z-10 ${
-                      loadingStates[image.id] ? "opacity-0" : "opacity-100"
-                    }`}
-                    onLoad={() => handleImageLoad(image.id)}
-                    onError={() => handleImageError(image.id)}
-                  />
+                    {/* Prompt text */}
+                    <div className="mb-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
+                      <p className="text-sm font-medium text-primary mb-1">
+                        Prompt:
+                      </p>
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {image.prompt}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Image */}
+                  <div className="relative px-4 pb-4">
+                    {loadingStates[image.id] && (
+                      <div className="absolute inset-0 z-10 mx-4 mb-4">
+                        <Skeleton className="w-full h-full rounded-lg" />
+                      </div>
+                    )}
+                    <Image
+                      src={image.blobUrl as string}
+                      alt={`Generated image for: ${image.prompt}`}
+                      width={600}
+                      height={600}
+                      className={`w-full h-auto object-cover rounded-lg shadow-md transition-opacity duration-300 ${
+                        loadingStates[image.id] ? "opacity-0" : "opacity-100"
+                      }`}
+                      onLoad={() => handleImageLoad(image.id)}
+                      onError={() => handleImageError(image.id)}
+                    />
+                  </div>
                 </div>
               ))}
         </div>
