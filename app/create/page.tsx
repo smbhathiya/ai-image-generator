@@ -25,6 +25,7 @@ interface ImageResponse {
 
 const CreateNew = () => {
   const [prompt, setPrompt] = useState("");
+  const [generatingPrompt, setGeneratingPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<ImageResponse | null>(
     null
@@ -49,13 +50,16 @@ const CreateNew = () => {
       return;
     }
 
+    const currentPrompt = prompt.trim();
+    setGeneratingPrompt(currentPrompt);
+    setPrompt(""); // Clear input after starting generation
     setLoading(true);
     setGeneratedImage(null);
     setResponseText("");
     setError("");
 
     try {
-      const result = await fetchImage(prompt);
+      const result = await fetchImage(currentPrompt);
 
       if (result?.image) {
         setGeneratedImage(result);
@@ -165,6 +169,18 @@ const CreateNew = () => {
             Describe a scene or idea and we&apos;ll bring it to life with AI
           </CardDescription>
 
+          {/* Show what's being generated */}
+          {(loading || generatingPrompt) && (
+            <div className="mt-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
+              <p className="text-sm font-medium text-primary">
+                {loading ? "Generating..." : "Generated:"}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {generatingPrompt}
+              </p>
+            </div>
+          )}
+
           {/* Action buttons - shown when image is generated */}
           {generatedImage && (
             <div className="mt-4 flex gap-2 justify-center">
@@ -190,13 +206,13 @@ const CreateNew = () => {
 
           <div className="mt-6 flex flex-col items-center">
             {loading && (
-              <Skeleton className="w-full max-w-md h-64 rounded-lg aspect-auto" />
+              <Skeleton className="w-full max-w-xs h-24 rounded-lg aspect-auto" />
             )}
 
             {!loading && generatedImage && (
               <div
                 ref={imageContainerRef}
-                className="relative w-full max-w-md cursor-pointer"
+                className="relative w-full max-w-xs cursor-pointer"
               >
                 <div
                   className="relative overflow-hidden rounded-lg"
