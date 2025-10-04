@@ -89,6 +89,39 @@ const CreateNew = () => {
     toast.success("Image downloaded successfully!");
   };
 
+  const saveImage = async () => {
+    if (!generatedImage?.image) return;
+    try {
+      toast.dismiss();
+      toast.loading('Saving image...');
+      const res = await fetch('/api/images/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64Image: generatedImage.image, prompt }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error || 'Failed to save image');
+        return;
+      }
+
+      // Update state with saved image info
+      setGeneratedImage((prev) =>
+        prev
+          ? {
+              ...prev,
+              savedImage: data.image,
+            }
+          : prev
+      );
+
+      toast.success('Image saved successfully');
+    } catch (err) {
+      console.error('Save error', err);
+      toast.error('Failed to save image');
+    }
+  };
+
   return (
     <div className="m-4">
       <Toaster />
@@ -142,14 +175,21 @@ const CreateNew = () => {
                     Click to view Image
                   </div>
                 </div>
-                <Button
-                  onClick={downloadImage}
-                  className="mt-4 w-full"
-                  variant="secondary"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Image
-                </Button>
+                <div className="mt-4 grid grid-cols-2 gap-2 w-full">
+                  <Button onClick={downloadImage} className="w-full" variant="secondary">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                  {generatedImage.savedImage ? (
+                    <Button className="w-full" disabled>
+                      Saved
+                    </Button>
+                  ) : (
+                    <Button className="w-full" onClick={saveImage}>
+                      Save
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </div>
