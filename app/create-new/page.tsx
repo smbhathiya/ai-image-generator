@@ -2,41 +2,50 @@
 import React, { useState, useCallback } from "react";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Download, X } from "lucide-react";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    try {
+      toast.dismiss();
+      toast.loading("Saving image...");
 
-interface ImageResponse {
-  image: string;
-  text: string;
-  savedImage?: {
-    id: number;
-    blobUrl: string;
-  };
-}
+      // If the request hangs, remove the loading toast after 15s
+      timeoutId = setTimeout(() => {
+        toast.dismiss();
+        toast.error("Saving image timed out. Please try again.");
+      }, 15000);
 
-const CreateNew = () => {
-  const [prompt, setPrompt] = useState("");
-  const [generatingPrompt, setGeneratingPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<ImageResponse | null>(
-    null
-  );
-  const [responseText, setResponseText] = useState("");
-  const [error, setError] = useState("");
-  const [viewingFullSize, setViewingFullSize] = useState(false);
+      const promptToSave = generatingPrompt || prompt;
+      const res = await fetch("/api/images/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64Image: generatedImage.image, prompt: promptToSave }),
+      });
 
-  const fetchImage = async (prompt: string) => {
-    const res = await fetch("/api/generate-images", {
+      const data = await res.json();
+      if (!res.ok) {
+        toast.dismiss();
+        toast.error(data?.error || "Failed to save image");
+        return;
+      }
+
+      // Update state with saved image info
+      setGeneratedImage((prev) =>
+        prev
+          ? {
+              ...prev,
+              savedImage: data.image,
+            }
+          : prev
+      );
+
+      toast.dismiss();
+      toast.success("Image saved successfully");
+    } catch (err) {
+      console.error("Save error", err);
+      toast.dismiss();
+      toast.error("Failed to save image");
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt }),
@@ -108,6 +117,7 @@ const CreateNew = () => {
       });
       const data = await res.json();
       if (!res.ok) {
+        toast.dismiss();
         toast.error(data?.error || "Failed to save image");
         return;
       }
@@ -122,9 +132,11 @@ const CreateNew = () => {
           : prev
       );
 
+      toast.dismiss();
       toast.success("Image saved successfully");
     } catch (err) {
       console.error("Save error", err);
+      toast.dismiss();
       toast.error("Failed to save image");
     }
   };

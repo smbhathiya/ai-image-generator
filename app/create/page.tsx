@@ -125,9 +125,16 @@ const CreateNew = () => {
 
   const saveImage = async () => {
     if (!generatedImage?.image) return;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     try {
       toast.dismiss();
       toast.loading("Saving image...");
+
+      // If the request hangs, remove the loading toast after 15s
+      timeoutId = setTimeout(() => {
+        toast.dismiss();
+        toast.error("Saving image timed out. Please try again.");
+      }, 15000);
 
       // if the prompt input was cleared after generation, use the generatingPrompt
       const promptToSave = generatingPrompt || prompt;
@@ -140,8 +147,10 @@ const CreateNew = () => {
           prompt: promptToSave,
         }),
       });
+
       const data = await res.json();
       if (!res.ok) {
+        toast.dismiss();
         toast.error(data?.error || "Failed to save image");
         return;
       }
@@ -156,10 +165,15 @@ const CreateNew = () => {
           : prev
       );
 
+      // clear loading toast then show success
+      toast.dismiss();
       toast.success("Image saved successfully");
     } catch (err) {
       console.error("Save error", err);
+      toast.dismiss();
       toast.error("Failed to save image");
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
   };
 
