@@ -3,14 +3,13 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Download, X, Send } from "lucide-react";
+import { Download, X, Send, FilePlus } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -182,14 +181,11 @@ const CreateNew = () => {
       <div className="max-w-4xl mx-auto">
         <Toaster position="top-center" />
 
-        <Card className="border-0">
-          <CardHeader>
-            <CardTitle className="text-primary text-2xl font-bold">
-              Create New Image
-            </CardTitle>
-            <CardDescription>
-              Describe a scene or idea and we&apos;ll bring it to life with AI
-            </CardDescription>
+        <Card className="bg-background border-0 shadow-none">
+          <CardHeader className="flex items-center gap-2">
+            <FilePlus className="w-6 h-6 gap-2" />
+            <CardTitle className="text-2xl font-bold">Create New</CardTitle>
+
 
             {/* Show what's being generated */}
             {(loading || (generatingPrompt && generatedImage)) && (
@@ -315,7 +311,7 @@ const CreateNew = () => {
 
       {/* Fixed bottom prompt bar - aligned with bottom nav */}
       <div className="fixed left-0 right-0 bottom-4 z-[60] flex justify-center pointer-events-none">
-        <div className="w-[calc(100%-2rem)] max-w-4xl mx-auto pointer-events-auto px-3">
+        <div className="w-[calc(100%-2rem)] max-w-4xl mx-auto pointer-events-auto ">
           <div className="rounded-xl bg-muted/20 backdrop-blur-md border border-border shadow-lg p-3 flex gap-3 items-end mb-24">
             <textarea
               ref={textareaRef}
