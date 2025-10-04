@@ -4,9 +4,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import { Copy } from "lucide-react";
+import { Copy, HistoryIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface ImageData {
   id: string;
@@ -153,17 +154,16 @@ export default function History() {
   }, [fetchImages]);
 
   return (
-    <div className="m-4 pb-32" ref={containerRef}>
+    <div className=" pb-32" ref={containerRef}>
       <div className="max-w-4xl mx-auto">
         <Toaster position="top-center" />
-        <div className="bg-muted/40 backdrop-blur-md rounded-xl p-4 sm:px-6 sm:py-5 mb-6 shadow-sm border border-muted">
-          <h1 className="text-xl sm:text-2xl font-extrabold text-primary mb-1">
-            Your Image History
-          </h1>
-          <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-            Browse and copy prompts from your previously generated images
-          </p>
-        </div>
+
+        <Card className="bg-background border-0 shadow-none">
+          <CardHeader className="flex items-center gap-2">
+            <HistoryIcon className="w-6 h-6 gap-2" />
+            <CardTitle className="text-2xl font-bold">History</CardTitle>
+          </CardHeader>
+          <CardContent>
 
         <div className="space-y-4">
           {(loadingImages || isLoading) && images.length === 0
@@ -218,7 +218,7 @@ export default function History() {
                     </div>
 
                     {/* Prompt text */}
-                    <div className="mb-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
+                    <div className="mb-4 p-3 bg-muted/30 rounded-lg border-primary/40 border-1">
                       <p className="text-sm font-medium text-primary mb-1">
                         Prompt:
                       </p>
@@ -276,6 +276,8 @@ export default function History() {
             You&apos;ve reached the end of your image history
           </div>
         )}
+        </CardContent>
+        </Card>
       </div>
     </div>
   );
