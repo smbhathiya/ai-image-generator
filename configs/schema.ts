@@ -21,8 +21,7 @@ export const Images = pgTable("images", {
   userId: integer("user_id")
     .notNull()
     .references(() => Users.id),
-  cloudinaryId: varchar("cloudinary_id", { length: 255 }).notNull(),
-  cloudinaryUrl: varchar("cloudinary_url", { length: 512 }).notNull(),
+  blobUrl: varchar("blob_url", { length: 512 }).notNull(),
+  prompt: varchar("prompt", { length: 1000 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
-

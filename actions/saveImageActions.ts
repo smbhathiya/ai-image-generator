@@ -3,14 +3,8 @@
 import { getDb } from "@/configs/drizzle";
 import { Images, Users } from "@/configs/schema";
 import { eq } from "drizzle-orm";
-import { v2 as cloudinary } from "cloudinary";
+import { uploadImageToBlob } from "@/lib/blob";
 import { auth } from "@clerk/nextjs/server";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 interface SaveImageParams {
   base64Image: string;
@@ -42,22 +36,20 @@ export async function saveGeneratedImage({
 
     const dbUser = userResult[0];
 
-    // Upload image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(
-      `data:image/png;base64,${base64Image}`,
-      {
-        folder: "ai_generated_collection",
-        public_id: `generated_${Date.now()}_${dbUser.id}`,
-      }
-    );
+    // Generate unique filename
+    const timestamp = Date.now();
+    const filename = `ai_generated_${timestamp}_${dbUser.id}.png`;
+
+    // Upload image to Vercel Blob
+    const uploadResult = await uploadImageToBlob(base64Image, filename);
 
     // Save image to database
     const imageRecord = await db
       .insert(Images)
       .values({
         userId: dbUser.id,
-        cloudinaryId: uploadResult.public_id,
-        cloudinaryUrl: uploadResult.secure_url,
+        blobUrl: uploadResult.url,
+        prompt: prompt,
         createdAt: new Date(),
       })
       .returning();
@@ -66,8 +58,8 @@ export async function saveGeneratedImage({
       success: true,
       image: {
         id: imageRecord[0].id,
-        cloudinaryUrl: imageRecord[0].cloudinaryUrl,
-        cloudinaryId: imageRecord[0].cloudinaryId,
+        blobUrl: imageRecord[0].blobUrl,
+        prompt: imageRecord[0].prompt,
       },
     };
   } catch (error) {

@@ -1,28 +1,14 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUser } from "@clerk/nextjs";
-import Link from "next/link";
-import { IconCirclePlusFilled } from "@tabler/icons-react";
 import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import getImagesPaginated, { Images } from "@/actions/getImagesPaginated";
 
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good Morning";
-  if (hour < 18) return "Good Afternoon";
-  return "Good Evening";
-}
-
 export default function Explorer() {
-  const { user } = useUser();
-  const isLoading = !user;
-  const userData = {
-    name: user?.fullName || user?.firstName || "User",
-  };
-  const greeting = getGreeting();
+  // Note: removed greeting and create-button UI per design request.
+  // Page now immediately shows the Pinterest-like image grid.
 
   const [images, setImages] = useState<Images[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -167,110 +153,80 @@ export default function Explorer() {
 
   return (
     <div className="m-4" ref={containerRef}>
-      <div className="bg-muted/40 backdrop-blur-md rounded-xl p-4 sm:px-6 sm:py-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm border border-muted">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-primary mb-1 flex flex-wrap items-center gap-2">
-            {isLoading ? (
-              <Skeleton className="h-8 sm:h-10 w-40 sm:w-60" />
-            ) : (
-              <>
-                {greeting},{" "}
-                <span className="text-muted-foreground break-words">
-                  {userData.name}
+      <div className="max-w-4xl mx-auto">
+        {/* Removed greeting + create button — show images grid directly */}
+
+        <div className="mb-6">
+          {!hasFetched ? (
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4`}
+              style={{
+                gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: columnCount * 2 }).map((_, idx) => (
+                <Skeleton key={idx} className="w-full h-64 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div
+              className="masonry-grid"
+              style={{
+                columnCount: columnCount,
+                columnGap: "1rem",
+              }}
+            >
+              {images.map((image) => (
+                <div
+                  key={image.id}
+                  className="masonry-item mb-3 break-inside-avoid rounded-lg overflow-hidden shadow-md relative"
+                  style={{
+                    minHeight: loadingStates[image.id.toString()]
+                      ? "200px"
+                      : "auto",
+                  }}
+                >
+                  {loadingStates[image.id.toString()] && (
+                    <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+                  )}
+                  <Image
+                    src={image.blobUrl}
+                    alt="Image"
+                    width={500}
+                    height={300}
+                    className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
+                      loadingStates[image.id.toString()]
+                        ? "opacity-0"
+                        : "opacity-100"
+                    }`}
+                    onLoad={() => handleImageLoad(image.id)}
+                    onError={() => handleImageLoad(image.id)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Loading indicator at bottom */}
+          {isPending && hasMore && hasFetched && (
+            <div className="w-full flex justify-center mt-6">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-muted-foreground">
+                  Loading more images...
                 </span>
-              </>
-            )}
-          </h1>
-          {!isLoading && (
-            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-              Welcome back! Hope you&apos;re having a productive day
-            </p>
+              </div>
+            </div>
+          )}
+
+          {!isPending && images.length === 0 && hasFetched && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">
+                No images found. Create your first image!
+              </p>
+            </div>
           )}
         </div>
-
-        {!isLoading && (
-          <Link
-            href="/explorer/create-new"
-            className="mt-4 sm:mt-0 block sm:inline-block"
-          >
-            <button className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-primary text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold shadow hover:bg-primary/90 transition-all duration-200">
-              <IconCirclePlusFilled className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              Create new
-            </button>
-          </Link>
-        )}
-      </div>
-
-      <div className="mb-6">
-        {isLoading || (isPending && !hasFetched) ? (
-          <div
-            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4`}
-            style={{
-              gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-            }}
-          >
-            {Array.from({ length: columnCount * 2 }).map((_, idx) => (
-              <Skeleton key={idx} className="w-full h-64 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <div className="flex gap-3">
-            {Array.from({ length: columnCount }).map((_, colIndex) => (
-              <div key={`column-${colIndex}`} className="flex-1 space-y-3">
-                {images
-                  .filter((_, imgIndex) => imgIndex % columnCount === colIndex)
-                  .map((image) => (
-                    <div
-                      key={image.id}
-                      className="overflow-hidden rounded-lg shadow-md relative"
-                      style={{
-                        minHeight: loadingStates[image.id.toString()]
-                          ? "200px"
-                          : "auto",
-                      }}
-                    >
-                      {loadingStates[image.id.toString()] && (
-                        <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
-                      )}
-                      <Image
-                        src={image.cloudinaryUrl}
-                        alt="Image"
-                        width={500}
-                        height={300}
-                        className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
-                          loadingStates[image.id.toString()]
-                            ? "opacity-0"
-                            : "opacity-100"
-                        }`}
-                        onLoad={() => handleImageLoad(image.id)}
-                        onError={() => handleImageLoad(image.id)}
-                      />
-                    </div>
-                  ))}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Loading indicator at bottom */}
-        {isPending && hasMore && hasFetched && (
-          <div className="w-full flex justify-center mt-6">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-muted-foreground">
-                Loading more images...
-              </span>
-            </div>
-          </div>
-        )}
-
-        {!isPending && images.length === 0 && !isLoading && hasFetched && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No images found. Create your first image!
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

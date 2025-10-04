@@ -16,8 +16,8 @@ export async function getUserImages(offset = 0, limit = 6) {
   const images = await db
     .select({
       id: Images.id,
-      cloudinaryId: Images.cloudinaryId,
-      cloudinaryUrl: Images.cloudinaryUrl,
+      blobUrl: Images.blobUrl,
+      prompt: Images.prompt,
       createdAt: Images.createdAt,
     })
     .from(Images)
