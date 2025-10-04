@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollToTopButton } from "./_components/ScrollToTopButton";
 import ProgressBar from "@/components/progress-bar";
 import ClientLayout from "@/components/client-layout";
+import BottomNav from "@/components/ui/bottom-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +49,8 @@ export default function RootLayout({
                 <ScrollToTopButton />
               </Provider>
             </ClientLayout>
+            {/* Mobile bottom navigation */}
+            <BottomNav />
           </ThemeProvider>
         </body>
       </html>
