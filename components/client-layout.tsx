@@ -29,7 +29,11 @@ export default function ClientLayout({
 }
 
 // Wrap children with BottomNav for mobile
-export function ClientLayoutWithNav({ children }: { children: React.ReactNode }) {
+export function ClientLayoutWithNav({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       {children}

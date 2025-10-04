@@ -25,4 +25,3 @@ export const Images = pgTable("images", {
   prompt: varchar("prompt", { length: 1000 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
-

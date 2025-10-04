@@ -189,10 +189,7 @@ export default function Explorer() {
         </div>
 
         {!isLoading && (
-          <Link
-            href="/explorer/create-new"
-            className="mt-4 sm:mt-0 block sm:inline-block"
-          >
+          <Link href="/create" className="mt-4 sm:mt-0 block sm:inline-block">
             <button className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-primary text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold shadow hover:bg-primary/90 transition-all duration-200">
               <IconCirclePlusFilled className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               Create new

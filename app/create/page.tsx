@@ -93,15 +93,15 @@ const CreateNew = () => {
     if (!generatedImage?.image) return;
     try {
       toast.dismiss();
-      toast.loading('Saving image...');
-      const res = await fetch('/api/images/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      toast.loading("Saving image...");
+      const res = await fetch("/api/images/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ base64Image: generatedImage.image, prompt }),
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data?.error || 'Failed to save image');
+        toast.error(data?.error || "Failed to save image");
         return;
       }
 
@@ -115,10 +115,10 @@ const CreateNew = () => {
           : prev
       );
 
-      toast.success('Image saved successfully');
+      toast.success("Image saved successfully");
     } catch (err) {
-      console.error('Save error', err);
-      toast.error('Failed to save image');
+      console.error("Save error", err);
+      toast.error("Failed to save image");
     }
   };
 
@@ -176,7 +176,11 @@ const CreateNew = () => {
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 w-full">
-                  <Button onClick={downloadImage} className="w-full" variant="secondary">
+                  <Button
+                    onClick={downloadImage}
+                    className="w-full"
+                    variant="secondary"
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>
