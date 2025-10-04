@@ -157,7 +157,7 @@ const CreateNew = () => {
   };
 
   return (
-    <div className="m-4">
+    <div className="m-4 pb-32">
       <Toaster />
 
       <Card className="border-0 max-w-4xl mx-auto ">
@@ -170,7 +170,7 @@ const CreateNew = () => {
           </CardDescription>
 
           {/* Show what's being generated */}
-          {(loading || generatingPrompt) && (
+          {(loading || (generatingPrompt && generatedImage)) && (
             <div className="mt-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
               <p className="text-sm font-medium text-primary">
                 {loading ? "Generating..." : "Generated:"}
@@ -201,7 +201,7 @@ const CreateNew = () => {
           )}
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="pb-16">
           {error && <p className="text-red-500 mt-4">{error}</p>}
 
           <div className="mt-6 flex flex-col items-center">
