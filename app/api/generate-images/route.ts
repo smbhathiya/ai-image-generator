@@ -10,22 +10,68 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body: PromptRequest = await req.json();
     const { prompt } = body;
+    // Prefer the new Nano Banana API key, fall back to Gemini for compatibility
+    const nanoBananaKey = process.env.NANO_BANANA_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const usedKeyName = nanoBananaKey
+      ? "NANO_BANANA_API_KEY"
+      : geminiKey
+      ? "GEMINI_API_KEY"
+      : null;
+    const apiKey = nanoBananaKey || geminiKey || null;
 
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-
-    if (!geminiApiKey) {
-      return NextResponse.json({ error: "API key not found" }, { status: 500 });
+    if (!apiKey) {
+      console.error(
+        "No AI API key configured. Check NANO_BANANA_API_KEY or GEMINI_API_KEY env vars."
+      );
+      return NextResponse.json(
+        {
+          error:
+            "API key not found. Set NANO_BANANA_API_KEY or GEMINI_API_KEY.",
+        },
+        { status: 500 }
+      );
     }
 
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+    // Log which key name we're using (don't log actual key value)
+    console.info(`Using AI API key from: ${usedKeyName}`);
 
-    const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp-image-generation",
-      contents: prompt,
-      config: {
-        responseModalities: [Modality.TEXT, Modality.IMAGE],
-      },
-    });
+    // Allow overriding the model via env var for testing new models (e.g. nano-banana)
+    const modelName =
+      process.env.IMAGE_MODEL || "gemini-2.0-flash-exp-image-generation";
+    console.info(`Using AI model: ${modelName}`);
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    let result;
+    try {
+      result = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: {
+          responseModalities: [Modality.TEXT, Modality.IMAGE],
+        },
+      });
+    } catch (err: unknown) {
+      // Surface provider error details safely for development
+      // err may be an Error with response, or any other shape coming from SDK
+      let providerBody: unknown = String(err);
+      try {
+        const errAny = err as unknown as {
+          response?: { data?: unknown };
+          message?: unknown;
+        };
+        const maybeResponse = errAny.response?.data ?? errAny.message;
+        if (maybeResponse) providerBody = maybeResponse;
+      } catch {
+        // ignore
+      }
+      console.error("AI provider error:", providerBody);
+      return NextResponse.json(
+        { error: "AI provider error", details: providerBody },
+        { status: 500 }
+      );
+    }
 
     const parts = result.candidates?.[0]?.content?.parts || [];
 
