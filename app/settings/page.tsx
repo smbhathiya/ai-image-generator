@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useClerk } from "@clerk/nextjs";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Settings } from "lucide-react";
+import LogoutButton from "@/components/logout-button";
 
 export default function SettingsPage() {
   const { openUserProfile } = useClerk();
@@ -43,6 +44,16 @@ export default function SettingsPage() {
                 </p>
               </div>
               <ModeToggle />
+            </div>
+
+            <div className="mt-6 flex items-center justify-between">
+              <div>
+                <p className="font-medium">Sign out</p>
+                <p className="text-sm text-muted-foreground">
+                  Sign out of your account on this device
+                </p>
+              </div>
+              <LogoutButton />
             </div>
           </CardContent>
         </Card>
