@@ -233,7 +233,7 @@ export default function Explorer() {
                         <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
                       )}
                       <Image
-                        src={image.cloudinaryUrl}
+                        src={image.blobUrl}
                         alt="Image"
                         width={500}
                         height={300}

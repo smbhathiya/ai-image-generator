@@ -1,18 +1,18 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import cloudinary from "@/lib/cloudinary";
+import { deleteImageFromBlob } from "@/lib/blob";
 import { Images } from "@/configs/schema";
 import { getDb } from "@/configs/drizzle";
 
-export async function deleteImageAction(id: number, cloudinaryId: string) {
+export async function deleteImageAction(id: number, blobUrl: string) {
   const db = await getDb();
-  if (!id || !cloudinaryId) {
+  if (!id || !blobUrl) {
     throw new Error("Missing required params");
   }
 
   try {
-    await cloudinary.uploader.destroy(cloudinaryId);
+    await deleteImageFromBlob(blobUrl);
     await db.delete(Images).where(eq(Images.id, id));
   } catch (error) {
     console.error("Server action delete error:", error);

@@ -81,13 +81,13 @@ export default function ManageImagesPage() {
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
-  const deleteImage = async (id: number, cloudinaryId: string) => {
+  const deleteImage = async (id: number, blobUrl: string) => {
     startTransition(async () => {
       try {
         const res = await fetch("/api/images/delete", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, cloudinaryId }),
+          body: JSON.stringify({ id, blobUrl }),
         });
 
         if (!res.ok) {
@@ -117,7 +117,7 @@ export default function ManageImagesPage() {
 
   const handleConfirmDelete = async () => {
     if (imageToDelete) {
-      await deleteImage(imageToDelete.id, imageToDelete.cloudinaryId);
+      await deleteImage(imageToDelete.id, imageToDelete.blobUrl);
     }
   };
 
@@ -188,7 +188,7 @@ export default function ManageImagesPage() {
                         <Skeleton className="absolute inset-0 w-full h-full rounded-md" />
                       )}
                       <Image
-                        src={img.cloudinaryUrl}
+                        src={img.blobUrl}
                         alt="Generated"
                         width={600}
                         height={600}

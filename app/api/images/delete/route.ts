@@ -2,14 +2,14 @@ import { deleteImageAction } from "@/actions/deleteImageAction";
 import { NextResponse } from "next/server";
 
 export async function DELETE(req: Request) {
-  const { id, cloudinaryId } = await req.json();
+  const { id, blobUrl } = await req.json();
 
-  if (!id || !cloudinaryId) {
+  if (!id || !blobUrl) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
   try {
-    await deleteImageAction(id, cloudinaryId);
+    await deleteImageAction(id, blobUrl);
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });

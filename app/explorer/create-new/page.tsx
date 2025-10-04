@@ -20,8 +20,7 @@ interface ImageResponse {
   text: string;
   savedImage?: {
     id: number;
-    cloudinaryUrl: string;
-    cloudinaryId: string;
+    blobUrl: string;
   };
 }
 
@@ -131,7 +130,7 @@ const CreateNew = () => {
                 >
                   <Image
                     src={
-                      generatedImage.savedImage?.cloudinaryUrl ||
+                      generatedImage.savedImage?.blobUrl ||
                       `data:image/png;base64,${generatedImage.image}`
                     }
                     alt="Generated Image"
@@ -181,7 +180,7 @@ const CreateNew = () => {
               <div className="w-auto h-auto max-w-full max-h-[80vh] overflow-hidden">
                 <Image
                   src={
-                    generatedImage.savedImage?.cloudinaryUrl ||
+                    generatedImage.savedImage?.blobUrl ||
                     `data:image/png;base64,${generatedImage.image}`
                   }
                   alt="Generated Image"

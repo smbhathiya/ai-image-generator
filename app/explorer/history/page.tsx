@@ -7,7 +7,7 @@ import Image from "next/image";
 
 interface ImageData {
   id: string;
-  cloudinaryUrl: string;
+  blobUrl: string;
   [key: string]: unknown;
 }
 
@@ -201,7 +201,7 @@ export default function History() {
                   )}
 
                   <Image
-                    src={image.cloudinaryUrl}
+                    src={image.blobUrl as string}
                     alt="Image"
                     width={500}
                     height={300}

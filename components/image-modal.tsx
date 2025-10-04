@@ -5,7 +5,7 @@ import { useState } from "react";
 
 interface ImageData {
   id: string;
-  cloudinaryUrl: string;
+  blobUrl: string;
 }
 
 export function ImageModal({
@@ -37,7 +37,7 @@ export function ImageModal({
       >
         {naturalWidth && naturalHeight ? (
           <Image
-            src={image.cloudinaryUrl}
+            src={image.blobUrl}
             alt="Selected"
             width={naturalWidth}
             height={naturalHeight}

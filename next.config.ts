@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "res.cloudinary.com",
+        // allow Vercel Blob domains or external blob urls if needed
+        hostname: "*",
       },
     ],
   },
