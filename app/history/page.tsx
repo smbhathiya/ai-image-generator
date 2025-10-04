@@ -194,16 +194,8 @@ export default function History() {
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-primary text-sm font-semibold">
-                            AI
-                          </span>
-                        </div>
                         <div>
-                          <p className="font-medium text-sm">
-                            AI Generated Image
-                          </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                             {new Date(image.createdAt).toLocaleDateString(
                               "en-US",
                               {
