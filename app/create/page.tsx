@@ -1,11 +1,6 @@
 "use client";
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,6 +47,8 @@ const CreateNew = () => {
     const currentPrompt = prompt.trim();
     setGeneratingPrompt(currentPrompt);
     setPrompt(""); // Clear input after starting generation
+    // reset textarea height when prompt cleared
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
     setGeneratedImage(null);
     setResponseText("");
@@ -183,13 +180,18 @@ const CreateNew = () => {
 
         <Card className="bg-background border-0 shadow-none">
           <CardHeader className="flex items-center gap-2">
-            <FilePlus className="w-6 h-6 gap-2" />
-            <CardTitle className="text-2xl font-bold">Create New</CardTitle>
+            <div className="flex items-center gap-2 mr-auto">
+              <FilePlus className="w-6 h-6" />
+              <CardTitle className="text-2xl font-bold">Create New</CardTitle>
+            </div>
+          </CardHeader>
 
+          <CardContent className="pb-16">
+            {error && <p className="text-red-500 mt-4">{error}</p>}
 
-            {/* Show what's being generated */}
+            {/* Generated prompt (stacked) */}
             {(loading || (generatingPrompt && generatedImage)) && (
-              <div className="mt-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
+              <div className="w-full w-4xl my-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary break-words">
                 <p className="text-sm font-medium text-primary">
                   {loading ? "Generating..." : "Generated:"}
                 </p>
@@ -199,9 +201,9 @@ const CreateNew = () => {
               </div>
             )}
 
-            {/* Action buttons - shown when image is generated */}
+            {/* Action buttons - shown when image is generated (stacked below prompt) */}
             {generatedImage && (
-              <div className="mt-4 flex gap-2 justify-center">
+              <div className="w-full sm:w-auto my-2 flex gap-2 justify-start">
                 <Button onClick={downloadImage} variant="secondary" size="sm">
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -217,10 +219,6 @@ const CreateNew = () => {
                 )}
               </div>
             )}
-          </CardHeader>
-
-          <CardContent className="pb-16">
-            {error && <p className="text-red-500 mt-4">{error}</p>}
 
             <div className="mt-6 flex flex-col items-center">
               {loading && (
@@ -317,8 +315,15 @@ const CreateNew = () => {
               ref={textareaRef}
               placeholder="Enter your prompt here..."
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e) => {
+                setPrompt(e.target.value);
+                // Auto resize textarea
+                const el = e.target;
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }}
               className="min-h-[52px] max-h-40 w-full resize-none rounded-md border bg-transparent px-3 py-2 text-base outline-none focus:ring-2 focus:ring-primary/40"
+              style={{ height: "auto" }}
             />
 
             <button
