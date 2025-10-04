@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Download, X, Send, FilePlus } from "lucide-react";
+import { Download, Send, FilePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -26,14 +26,17 @@ const CreateNew = () => {
   );
   const [responseText, setResponseText] = useState("");
   const [error, setError] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [base64Images, setBase64Images] = useState<string[]>([]);
   const [viewingFullSize, setViewingFullSize] = useState(false);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchImage = async (prompt: string) => {
+  const fetchImage = async (payload: { prompt: string; images?: string[] }) => {
     const res = await fetch("/api/generate-images", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify(payload),
     });
     return res.json();
   };
@@ -55,7 +58,14 @@ const CreateNew = () => {
     setError("");
 
     try {
-      const result = await fetchImage(currentPrompt);
+      // Use base64 images directly
+      console.log(`Generating with ${base64Images.length} reference images`);
+
+      // Send structured payload: prompt + base64 images array
+      const result = await fetchImage({
+        prompt: currentPrompt,
+        images: base64Images,
+      });
 
       if (result?.image) {
         setGeneratedImage(result);
@@ -72,7 +82,66 @@ const CreateNew = () => {
     } finally {
       setLoading(false);
     }
-  }, [prompt]);
+  }, [prompt, base64Images]);
+
+  // File input handlers
+  const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setSelectedFiles(files);
+    const urls = files.map((f) => URL.createObjectURL(f));
+    setPreviews(urls);
+
+    // Convert files to base64 immediately
+    console.log(`Converting ${files.length} images to base64`);
+    toast.loading("Processing images...");
+    try {
+      const base64Array: string[] = [];
+
+      for (const file of files) {
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const result = reader.result as string;
+            // Remove data:image/...;base64, prefix
+            const base64Data = result.split(",")[1];
+            resolve(base64Data);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        base64Array.push(base64);
+      }
+
+      setBase64Images(base64Array);
+      console.log(`Converted ${base64Array.length} images to base64`);
+      toast.dismiss();
+      toast.success(`Ready to use ${base64Array.length} reference image(s)`);
+    } catch (err) {
+      console.error("Image conversion failed", err);
+      toast.dismiss();
+      toast.error("Failed to process images.");
+      // Clear selection on error
+      setSelectedFiles([]);
+      setPreviews([]);
+      setBase64Images([]);
+    }
+  };
+
+  const removePreview = (index: number) => {
+    const copyFiles = [...selectedFiles];
+    const copyPreviews = [...previews];
+    const copyBase64 = [...base64Images];
+    // revoke the object URL
+    URL.revokeObjectURL(copyPreviews[index]);
+    copyFiles.splice(index, 1);
+    copyPreviews.splice(index, 1);
+    copyBase64.splice(index, 1);
+    setSelectedFiles(copyFiles);
+    setPreviews(copyPreviews);
+    setBase64Images(copyBase64);
+  };
 
   // Keyboard handler: Enter to generate, Shift+Enter newline
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -310,7 +379,53 @@ const CreateNew = () => {
       {/* Fixed bottom prompt bar - aligned with bottom nav */}
       <div className="fixed left-0 right-0 bottom-4 z-[60] flex justify-center pointer-events-none">
         <div className="w-[calc(100%-2rem)] max-w-4xl mx-auto pointer-events-auto ">
+          {/* Reference image previews - show above prompt bar */}
+          {previews.length > 0 && (
+            <div className="mb-2 flex gap-2 items-center justify-center">
+              {previews.map((p, i) => (
+                <div
+                  key={p}
+                  className="relative w-16 h-16 rounded-md overflow-hidden bg-background border"
+                >
+                  <Image
+                    src={p}
+                    alt={`preview-${i}`}
+                    width={64}
+                    height={64}
+                    className="object-cover"
+                  />
+                  <button
+                    onClick={() => removePreview(i)}
+                    aria-label="Remove"
+                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="rounded-xl bg-muted/20 backdrop-blur-md border border-border shadow-lg p-3 flex gap-3 items-end mb-24">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFilesChange}
+              className="hidden"
+              id="file-input-bottom"
+            />
+
+            <button
+              onClick={() =>
+                document.getElementById("file-input-bottom")?.click()
+              }
+              className="rounded-md bg-muted/50 p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center"
+              aria-label="Add reference images"
+            >
+              <FilePlus className="w-5 h-5" />
+            </button>
+
             <textarea
               ref={textareaRef}
               placeholder="Enter your prompt here..."
