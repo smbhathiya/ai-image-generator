@@ -3,12 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 interface PromptRequest {
   prompt: string;
+  images?: string[]; // base64 encoded images
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body: PromptRequest = await req.json();
-    const { prompt } = body;
+    const { prompt, images } = body;
     // Prefer the new Nano Banana API key, fall back to Gemini for compatibility
     const nanoBananaKey = process.env.NANO_BANANA_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
@@ -44,9 +45,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     let result;
     try {
+      // Create contents array with text prompt and images
+      const contents: Array<{
+        text?: string;
+        inlineData?: { mimeType: string; data: string };
+      }> = [{ text: prompt }];
+
+      // Add images if provided
+      if (images && images.length > 0) {
+        console.log(
+          `Including ${images.length} reference images in generation`
+        );
+        images.forEach((base64Image) => {
+          contents.push({
+            inlineData: {
+              mimeType: "image/jpeg", // Assume JPEG, could be made dynamic
+              data: base64Image,
+            },
+          });
+        });
+      }
+
       result = await ai.models.generateContent({
         model: modelName,
-        contents: prompt,
+        contents: contents,
         config: {
           responseModalities: [Modality.TEXT, Modality.IMAGE],
         },
