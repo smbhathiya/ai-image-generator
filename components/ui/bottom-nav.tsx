@@ -15,7 +15,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 rounded-xl bg-popover/90 backdrop-blur-md border border-border px-3 py-2 shadow-lg">
+    <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 rounded-xl bg-popover/90 backdrop-blur-md border border-border px-3 py-2 shadow-lg">
       <ul className="flex justify-between gap-2">
         {items.map((it) => {
           const Icon = it.icon;
