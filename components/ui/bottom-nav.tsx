@@ -9,7 +9,7 @@ export default function BottomNav() {
 
   const items = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/explorer/create-new", label: "Create", icon: ImageIcon },
+    { href: "/create", label: "Create", icon: ImageIcon },
     { href: "/explorer", label: "Explore", icon: Grid },
     { href: "/explorer/history", label: "History", icon: Clock },
   ];
