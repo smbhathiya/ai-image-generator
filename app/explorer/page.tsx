@@ -168,39 +168,39 @@ export default function Explorer() {
             ))}
           </div>
         ) : (
-          <div className="flex gap-3">
-            {Array.from({ length: columnCount }).map((_, colIndex) => (
-              <div key={`column-${colIndex}`} className="flex-1 space-y-3">
-                {images
-                  .filter((_, imgIndex) => imgIndex % columnCount === colIndex)
-                  .map((image) => (
-                    <div
-                      key={image.id}
-                      className="overflow-hidden rounded-lg shadow-md relative"
-                      style={{
-                        minHeight: loadingStates[image.id.toString()]
-                          ? "200px"
-                          : "auto",
-                      }}
-                    >
-                      {loadingStates[image.id.toString()] && (
-                        <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
-                      )}
-                      <Image
-                        src={image.blobUrl}
-                        alt="Image"
-                        width={500}
-                        height={300}
-                        className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
-                          loadingStates[image.id.toString()]
-                            ? "opacity-0"
-                            : "opacity-100"
-                        }`}
-                        onLoad={() => handleImageLoad(image.id)}
-                        onError={() => handleImageLoad(image.id)}
-                      />
-                    </div>
-                  ))}
+          <div
+            className="masonry-grid"
+            style={{
+              columnCount: columnCount,
+              columnGap: "1rem",
+            }}
+          >
+            {images.map((image) => (
+              <div
+                key={image.id}
+                className="masonry-item mb-3 break-inside-avoid rounded-lg overflow-hidden shadow-md relative"
+                style={{
+                  minHeight: loadingStates[image.id.toString()]
+                    ? "200px"
+                    : "auto",
+                }}
+              >
+                {loadingStates[image.id.toString()] && (
+                  <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+                )}
+                <Image
+                  src={image.blobUrl}
+                  alt="Image"
+                  width={500}
+                  height={300}
+                  className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
+                    loadingStates[image.id.toString()]
+                      ? "opacity-0"
+                      : "opacity-100"
+                  }`}
+                  onLoad={() => handleImageLoad(image.id)}
+                  onError={() => handleImageLoad(image.id)}
+                />
               </div>
             ))}
           </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ImageIcon, Grid, Clock } from "lucide-react";
+import { Home, ImageIcon, Grid, Clock, Settings } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -12,6 +12,7 @@ export default function BottomNav() {
     { href: "/create", label: "Create", icon: ImageIcon },
     { href: "/explorer", label: "Explore", icon: Grid },
     { href: "/history", label: "History", icon: Clock },
+    { href: "/settings", label: "Settings", icon: Settings },
   ];
 
   return (
