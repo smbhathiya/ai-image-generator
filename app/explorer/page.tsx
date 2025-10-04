@@ -153,78 +153,80 @@ export default function Explorer() {
 
   return (
     <div className="m-4" ref={containerRef}>
-      {/* Removed greeting + create button — show images grid directly */}
+      <div className="max-w-4xl mx-auto">
+        {/* Removed greeting + create button — show images grid directly */}
 
-      <div className="mb-6">
-        {!hasFetched ? (
-          <div
-            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4`}
-            style={{
-              gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-            }}
-          >
-            {Array.from({ length: columnCount * 2 }).map((_, idx) => (
-              <Skeleton key={idx} className="w-full h-64 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <div
-            className="masonry-grid"
-            style={{
-              columnCount: columnCount,
-              columnGap: "1rem",
-            }}
-          >
-            {images.map((image) => (
-              <div
-                key={image.id}
-                className="masonry-item mb-3 break-inside-avoid rounded-lg overflow-hidden shadow-md relative"
-                style={{
-                  minHeight: loadingStates[image.id.toString()]
-                    ? "200px"
-                    : "auto",
-                }}
-              >
-                {loadingStates[image.id.toString()] && (
-                  <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
-                )}
-                <Image
-                  src={image.blobUrl}
-                  alt="Image"
-                  width={500}
-                  height={300}
-                  className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
-                    loadingStates[image.id.toString()]
-                      ? "opacity-0"
-                      : "opacity-100"
-                  }`}
-                  onLoad={() => handleImageLoad(image.id)}
-                  onError={() => handleImageLoad(image.id)}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Loading indicator at bottom */}
-        {isPending && hasMore && hasFetched && (
-          <div className="w-full flex justify-center mt-6">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-muted-foreground">
-                Loading more images...
-              </span>
+        <div className="mb-6">
+          {!hasFetched ? (
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4`}
+              style={{
+                gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: columnCount * 2 }).map((_, idx) => (
+                <Skeleton key={idx} className="w-full h-64 rounded-lg" />
+              ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div
+              className="masonry-grid"
+              style={{
+                columnCount: columnCount,
+                columnGap: "1rem",
+              }}
+            >
+              {images.map((image) => (
+                <div
+                  key={image.id}
+                  className="masonry-item mb-3 break-inside-avoid rounded-lg overflow-hidden shadow-md relative"
+                  style={{
+                    minHeight: loadingStates[image.id.toString()]
+                      ? "200px"
+                      : "auto",
+                  }}
+                >
+                  {loadingStates[image.id.toString()] && (
+                    <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+                  )}
+                  <Image
+                    src={image.blobUrl}
+                    alt="Image"
+                    width={500}
+                    height={300}
+                    className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${
+                      loadingStates[image.id.toString()]
+                        ? "opacity-0"
+                        : "opacity-100"
+                    }`}
+                    onLoad={() => handleImageLoad(image.id)}
+                    onError={() => handleImageLoad(image.id)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-        {!isPending && images.length === 0 && hasFetched && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No images found. Create your first image!
-            </p>
-          </div>
-        )}
+          {/* Loading indicator at bottom */}
+          {isPending && hasMore && hasFetched && (
+            <div className="w-full flex justify-center mt-6">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-muted-foreground">
+                  Loading more images...
+                </span>
+              </div>
+            </div>
+          )}
+
+          {!isPending && images.length === 0 && hasFetched && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">
+                No images found. Create your first image!
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

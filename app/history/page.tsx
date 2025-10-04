@@ -154,9 +154,8 @@ export default function History() {
 
   return (
     <div className="m-4 pb-32" ref={containerRef}>
-      <Toaster position="top-center" />
-
       <div className="max-w-4xl mx-auto">
+        <Toaster position="top-center" />
         <div className="bg-muted/40 backdrop-blur-md rounded-xl p-4 sm:px-6 sm:py-5 mb-6 shadow-sm border border-muted">
           <h1 className="text-xl sm:text-2xl font-extrabold text-primary mb-1">
             Your Image History

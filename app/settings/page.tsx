@@ -16,38 +16,44 @@ export default function SettingsPage() {
   const { openUserProfile } = useClerk();
 
   return (
-    <div className="m-4 max-w-3xl">
-      <Card>
-        <CardHeader>
-          <CardTitle>Settings</CardTitle>
-          <CardDescription>Manage your account and preferences</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="font-medium">Account</p>
-              <p className="text-sm text-muted-foreground">
-                Update your profile and account settings
-              </p>
+    <div className="m-4">
+      <div className="max-w-4xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Settings</CardTitle>
+            <CardDescription>
+              Manage your account and preferences
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-medium">Account</p>
+                <p className="text-sm text-muted-foreground">
+                  Update your profile and account settings
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button onClick={() => openUserProfile?.()}>
+                  Open Profile
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => openUserProfile?.()}>Open Profile</Button>
-            </div>
-          </div>
 
-          <Separator className="my-6" />
+            <Separator className="my-6" />
 
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Theme</p>
-              <p className="text-sm text-muted-foreground">
-                Switch between light and dark mode
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Theme</p>
+                <p className="text-sm text-muted-foreground">
+                  Switch between light and dark mode
+                </p>
+              </div>
+              <ModeToggle />
             </div>
-            <ModeToggle />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

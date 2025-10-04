@@ -179,89 +179,93 @@ const CreateNew = () => {
 
   return (
     <div className="m-4 pb-32">
-      <Toaster position="top-center" />
+      <div className="max-w-4xl mx-auto">
+        <Toaster position="top-center" />
 
-      <Card className="border-0 max-w-4xl mx-auto ">
-        <CardHeader>
-          <CardTitle className="text-primary text-2xl font-bold">
-            Create New Image
-          </CardTitle>
-          <CardDescription>
-            Describe a scene or idea and we&apos;ll bring it to life with AI
-          </CardDescription>
+        <Card className="border-0">
+          <CardHeader>
+            <CardTitle className="text-primary text-2xl font-bold">
+              Create New Image
+            </CardTitle>
+            <CardDescription>
+              Describe a scene or idea and we&apos;ll bring it to life with AI
+            </CardDescription>
 
-          {/* Show what's being generated */}
-          {(loading || (generatingPrompt && generatedImage)) && (
-            <div className="mt-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
-              <p className="text-sm font-medium text-primary">
-                {loading ? "Generating..." : "Generated:"}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {generatingPrompt}
-              </p>
-            </div>
-          )}
-
-          {/* Action buttons - shown when image is generated */}
-          {generatedImage && (
-            <div className="mt-4 flex gap-2 justify-center">
-              <Button onClick={downloadImage} variant="secondary" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
-              {generatedImage.savedImage ? (
-                <Button size="sm" disabled>
-                  Saved
-                </Button>
-              ) : (
-                <Button size="sm" onClick={saveImage}>
-                  Save
-                </Button>
-              )}
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent className="pb-16">
-          {error && <p className="text-red-500 mt-4">{error}</p>}
-
-          <div className="mt-6 flex flex-col items-center">
-            {loading && (
-              <Skeleton className="w-full max-w-xs h-24 rounded-lg aspect-auto" />
-            )}
-
-            {!loading && generatedImage && (
-              <div
-                ref={imageContainerRef}
-                className="relative w-full max-w-xs cursor-pointer"
-              >
-                <div
-                  className="relative overflow-hidden rounded-lg"
-                  onClick={() => setViewingFullSize(true)}
-                >
-                  <Image
-                    src={
-                      generatedImage.savedImage?.blobUrl ||
-                      `data:image/png;base64,${generatedImage.image}`
-                    }
-                    alt="Generated Image"
-                    width={512}
-                    height={512}
-                    className="w-full h-auto object-contain rounded-lg shadow-md"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 text-center">
-                    Click to view Image
-                  </div>
-                </div>
+            {/* Show what's being generated */}
+            {(loading || (generatingPrompt && generatedImage)) && (
+              <div className="mt-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary">
+                <p className="text-sm font-medium text-primary">
+                  {loading ? "Generating..." : "Generated:"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {generatingPrompt}
+                </p>
               </div>
             )}
-          </div>
 
-          {responseText && (
-            <p className="mt-4 text-sm text-muted-foreground">{responseText}</p>
-          )}
-        </CardContent>
-      </Card>
+            {/* Action buttons - shown when image is generated */}
+            {generatedImage && (
+              <div className="mt-4 flex gap-2 justify-center">
+                <Button onClick={downloadImage} variant="secondary" size="sm">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                {generatedImage.savedImage ? (
+                  <Button size="sm" disabled>
+                    Saved
+                  </Button>
+                ) : (
+                  <Button size="sm" onClick={saveImage}>
+                    Save
+                  </Button>
+                )}
+              </div>
+            )}
+          </CardHeader>
+
+          <CardContent className="pb-16">
+            {error && <p className="text-red-500 mt-4">{error}</p>}
+
+            <div className="mt-6 flex flex-col items-center">
+              {loading && (
+                <Skeleton className="w-full max-w-xs h-24 rounded-lg aspect-auto" />
+              )}
+
+              {!loading && generatedImage && (
+                <div
+                  ref={imageContainerRef}
+                  className="relative w-full max-w-xs cursor-pointer"
+                >
+                  <div
+                    className="relative overflow-hidden rounded-lg"
+                    onClick={() => setViewingFullSize(true)}
+                  >
+                    <Image
+                      src={
+                        generatedImage.savedImage?.blobUrl ||
+                        `data:image/png;base64,${generatedImage.image}`
+                      }
+                      alt="Generated Image"
+                      width={512}
+                      height={512}
+                      className="w-full h-auto object-contain rounded-lg shadow-md"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 text-center">
+                      Click to view Image
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {responseText && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                {responseText}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {viewingFullSize && generatedImage && (
         <div
@@ -311,7 +315,7 @@ const CreateNew = () => {
 
       {/* Fixed bottom prompt bar - aligned with bottom nav */}
       <div className="fixed left-0 right-0 bottom-4 z-[60] flex justify-center pointer-events-none">
-        <div className="w-4xl mx-auto pointer-events-auto px-3">
+        <div className="w-[calc(100%-2rem)] max-w-4xl mx-auto pointer-events-auto px-3">
           <div className="rounded-xl bg-muted/20 backdrop-blur-md border border-border shadow-lg p-3 flex gap-3 items-end mb-24">
             <textarea
               ref={textareaRef}

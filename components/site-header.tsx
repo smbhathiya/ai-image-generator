@@ -4,6 +4,7 @@ import { ModeToggle } from "./mode-toggle";
 import Link from "next/link";
 import { Settings } from "lucide-react";
 
+
 export function SiteHeader() {
   return (
     <header className="flex h-12 items-center bg-background/50 px-4">
