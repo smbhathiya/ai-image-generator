@@ -5,6 +5,17 @@ import { useUser } from "@clerk/nextjs";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Copy, HistoryIcon, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -43,9 +54,14 @@ export default function History() {
   };
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedToDelete, setSelectedToDelete] = useState<{
+    id: string;
+    blobUrl: string;
+  } | null>(null);
   const deleteImage = async (id: string, blobUrl: string) => {
-    if (!confirm("Are you sure you want to delete this image?")) return;
+    // close confirm dialog if open
+    setConfirmOpen(false);
     setDeletingId(id);
     try {
       const res = await fetch("/api/images/delete", {
@@ -244,23 +260,70 @@ export default function History() {
                             >
                               <Copy className="w-4 h-4 text-muted-foreground hover:text-primary" />
                             </button>
-                            <button
-                              onClick={() =>
-                                deleteImage(image.id, image.blobUrl as string)
-                              }
-                              className="p-2 hover:bg-muted rounded-full transition-colors"
-                              aria-label="Delete image"
-                              disabled={deletingId === image.id}
+                            {/* Delete with confirmation dialog */}
+                            <Dialog
+                              open={confirmOpen}
+                              onOpenChange={setConfirmOpen}
                             >
-                              <Trash2
-                                className={`w-4 h-4 text-muted-foreground hover:text-primary ${
-                                  deletingId === image.id ? "animate-spin" : ""
-                                }`}
-                              />
-                              {deletingId === image.id && (
-                                <span className="sr-only">Deleting...</span>
-                              )}
-                            </button>
+                              <DialogTrigger asChild>
+                                <button
+                                  onClick={() => {
+                                    setSelectedToDelete({
+                                      id: image.id,
+                                      blobUrl: image.blobUrl as string,
+                                    });
+                                    setConfirmOpen(true);
+                                  }}
+                                  className="p-2 hover:bg-muted rounded-full transition-colors"
+                                  aria-label="Delete image"
+                                  disabled={deletingId === image.id}
+                                >
+                                  <Trash2
+                                    className={`w-4 h-4 text-muted-foreground hover:text-primary ${
+                                      deletingId === image.id
+                                        ? "animate-spin"
+                                        : ""
+                                    }`}
+                                  />
+                                  {deletingId === image.id && (
+                                    <span className="sr-only">Deleting...</span>
+                                  )}
+                                </button>
+                              </DialogTrigger>
+
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Delete image?</DialogTitle>
+                                  <DialogDescription>
+                                    This action will permanently delete the
+                                    image and cannot be undone.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="outline" size="sm">
+                                      Cancel
+                                    </Button>
+                                  </DialogClose>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (selectedToDelete) {
+                                        deleteImage(
+                                          selectedToDelete.id,
+                                          selectedToDelete.blobUrl
+                                        );
+                                        setSelectedToDelete(null);
+                                      }
+                                    }}
+                                    disabled={!!deletingId}
+                                  >
+                                    Delete
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </div>
 
