@@ -30,10 +30,15 @@ const CreateNew = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [base64Images, setBase64Images] = useState<string[]>([]);
+  const [imageMimeTypes, setImageMimeTypes] = useState<string[]>([]);
   const [viewingFullSize, setViewingFullSize] = useState(false);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchImage = async (payload: { prompt: string; images?: string[] }) => {
+  const fetchImage = async (payload: {
+    prompt: string;
+    images?: string[];
+    mimeTypes?: string[];
+  }) => {
     const res = await fetch("/api/generate-images", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -50,12 +55,14 @@ const CreateNew = () => {
 
     const currentPrompt = prompt.trim();
     const currentBase64Images = [...base64Images]; // Capture current reference images
+    const currentMimeTypes = [...imageMimeTypes]; // Capture current MIME types
     setGeneratingPrompt(currentPrompt);
     setPrompt(""); // Clear input after starting generation
     // Clear reference images after starting generation
     setSelectedFiles([]);
     setPreviews([]);
     setBase64Images([]);
+    setImageMimeTypes([]);
     // reset textarea height when prompt cleared
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
@@ -68,11 +75,17 @@ const CreateNew = () => {
       console.log(
         `Generating with ${currentBase64Images.length} reference images`
       );
+      console.log("Payload being sent:", {
+        prompt: currentPrompt,
+        imagesCount: currentBase64Images.length,
+        firstImagePreview: currentBase64Images[0]?.substring(0, 50) + "...",
+      });
 
       // Send structured payload: prompt + base64 images array
       const result = await fetchImage({
         prompt: currentPrompt,
         images: currentBase64Images,
+        mimeTypes: currentMimeTypes,
       });
 
       if (result?.image) {
@@ -90,7 +103,7 @@ const CreateNew = () => {
     } finally {
       setLoading(false);
     }
-  }, [prompt, base64Images]);
+  }, [prompt, base64Images, imageMimeTypes]);
 
   // File input handlers
   const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,23 +119,32 @@ const CreateNew = () => {
     toast.loading("Processing images...");
     try {
       const base64Array: string[] = [];
+      const mimeTypes: string[] = [];
 
       for (const file of files) {
+        console.log(
+          `Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`
+        );
         const reader = new FileReader();
         const base64 = await new Promise<string>((resolve, reject) => {
           reader.onload = () => {
             const result = reader.result as string;
             // Remove data:image/...;base64, prefix
             const base64Data = result.split(",")[1];
+            console.log(
+              `Converted ${file.name} to base64, length: ${base64Data.length}`
+            );
             resolve(base64Data);
           };
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
         base64Array.push(base64);
+        mimeTypes.push(file.type);
       }
 
       setBase64Images(base64Array);
+      setImageMimeTypes(mimeTypes);
       console.log(`Converted ${base64Array.length} images to base64`);
       toast.dismiss();
       toast.success(`Ready to use ${base64Array.length} reference image(s)`);
@@ -134,6 +156,7 @@ const CreateNew = () => {
       setSelectedFiles([]);
       setPreviews([]);
       setBase64Images([]);
+      setImageMimeTypes([]);
     }
   };
 
@@ -141,14 +164,17 @@ const CreateNew = () => {
     const copyFiles = [...selectedFiles];
     const copyPreviews = [...previews];
     const copyBase64 = [...base64Images];
+    const copyMimeTypes = [...imageMimeTypes];
     // revoke the object URL
     URL.revokeObjectURL(copyPreviews[index]);
     copyFiles.splice(index, 1);
     copyPreviews.splice(index, 1);
     copyBase64.splice(index, 1);
+    copyMimeTypes.splice(index, 1);
     setSelectedFiles(copyFiles);
     setPreviews(copyPreviews);
     setBase64Images(copyBase64);
+    setImageMimeTypes(copyMimeTypes);
   };
 
   // Keyboard handler: Enter to generate, Shift+Enter newline

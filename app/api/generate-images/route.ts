@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 interface PromptRequest {
   prompt: string;
   images?: string[]; // base64 encoded images
+  mimeTypes?: string[]; // corresponding MIME types for images
 }
 
 function buildEnhancedPrompt(prompt: string, referenceCount: number): string {
@@ -29,7 +30,7 @@ function buildEnhancedPrompt(prompt: string, referenceCount: number): string {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body: PromptRequest = await req.json();
-    const { prompt, images } = body;
+    const { prompt, images, mimeTypes } = body;
 
     if (!prompt || !prompt.trim()) {
       return NextResponse.json(
@@ -85,14 +86,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         console.log(
           `Including ${images.length} reference images in generation`
         );
-        images.forEach((base64Image) => {
+        images.forEach((base64Image, index) => {
+          const mimeType = mimeTypes?.[index] || "image/png"; // Use provided MIME type or default to PNG
+          console.log(
+            `Adding reference image ${index + 1} with MIME type: ${mimeType}`
+          );
           contents.push({
             inlineData: {
-              mimeType: "image/jpeg", // Assume JPEG, could be made dynamic
+              mimeType: mimeType,
               data: base64Image,
             },
           });
         });
+        console.log(
+          `Total content items: ${contents.length} (1 text + ${images.length} images)`
+        );
+      } else {
+        console.log("No reference images provided");
       }
 
       result = await ai.models.generateContent({
