@@ -9,21 +9,25 @@ interface PromptRequest {
 
 function buildEnhancedPrompt(prompt: string, referenceCount: number): string {
   const trimmed = prompt.trim();
-  const baseInstruction =
-    "Create one ultra high-resolution image (8K quality or higher) with exceptional detail, sharp focus, professional lighting, and photorealistic textures. Use maximum quality settings.";
+  const resolutionInstruction =
+    "MAXIMUM RESOLUTION REQUIREMENT: Generate the highest possible resolution image - target 8K (7680×4320) or higher. Use ultra-high definition settings with pixel-perfect clarity and maximum detail density.";
+  const qualitySpecs =
+    "ULTRA QUALITY SPECIFICATIONS: Professional photography grade, tack-sharp focus throughout, zero compression artifacts, full color gamut, HDR-level dynamic range, studio lighting quality, ultra-fine texture detail, crisp edges, perfect clarity.";
+  const technicalRequirements =
+    "TECHNICAL MANDATES: Maximum bit depth, highest available resolution multiplier, no downsampling, full detail preservation, professional-grade output quality equivalent to high-end camera systems.";
   const referenceInstruction = referenceCount
-    ? `Study and incorporate the visual style, composition techniques, color palette, and artistic elements from the ${referenceCount} provided reference image${
+    ? `REFERENCE ANALYSIS AND INTEGRATION: Meticulously study the ${referenceCount} provided reference image${
         referenceCount > 1 ? "s" : ""
-      } while creating an original interpretation.`
-    : "Create an original composition using your full creative capabilities.";
-  const qualityConstraints =
-    "Requirements: Ultra-sharp details, no compression artifacts, balanced exposure, rich colors, professional-grade output. Return the highest quality image possible.";
+      }. Extract and enhance the visual style, composition techniques, color grading, lighting approach, artistic elements, and aesthetic qualities. Recreate these elements at maximum resolution while generating original content.`
+    : "ORIGINAL HIGH-RESOLUTION CREATION: Generate completely original high-resolution content using maximum creative and technical capabilities.";
 
   return [
-    baseInstruction,
+    resolutionInstruction,
+    qualitySpecs,
+    technicalRequirements,
     referenceInstruction,
-    qualityConstraints,
-    `User's creative vision: ${trimmed}`,
+    `CREATIVE VISION TO EXECUTE: ${trimmed}`,
+    "FINAL OUTPUT MANDATE: Return the absolute highest resolution, highest quality image possible with no quality compromises.",
   ].join("\n\n");
 }
 
@@ -66,9 +70,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.info(`Using AI API key from: ${usedKeyName}`);
 
     // Allow overriding the model via env var for testing new models (e.g. nano-banana)
-    const modelName =
-      process.env.IMAGE_MODEL || "gemini-2.0-flash-exp-image-generation";
-    console.info(`Using AI model: ${modelName}`);
+    const modelName = process.env.IMAGE_MODEL || "gemini-2.0-flash-exp";
+    console.info(
+      `Using AI model: ${modelName} for maximum resolution generation`
+    );
 
     const ai = new GoogleGenAI({ apiKey });
 
@@ -110,6 +115,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         contents: contents,
         config: {
           responseModalities: [Modality.TEXT, Modality.IMAGE],
+          generationConfig: {
+            temperature: 0.1, // Very low temperature for maximum quality consistency
+            topP: 0.9, // Higher top-p for more diverse high-quality options
+            topK: 40, // Higher top-k for better quality selection
+            maxOutputTokens: 16384, // Increased tokens for more detailed generation
+            candidateCount: 1, // Focus on single highest quality output
+          },
+          // Add safety settings to allow creative content while maintaining quality focus
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+          ],
         },
       });
     } catch (err: unknown) {
@@ -140,7 +171,40 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     for (const part of parts) {
       if (part.text) textOutput += part.text;
-      else if (part.inlineData) imageBase64 = part.inlineData.data ?? "";
+      else if (part.inlineData) {
+        imageBase64 = part.inlineData.data ?? "";
+        console.log(
+          `Generated image size: ${imageBase64.length} characters (base64)`
+        );
+
+        // Log estimated image dimensions based on base64 size
+        const estimatedBytes = (imageBase64.length * 3) / 4;
+        const estimatedMB = estimatedBytes / (1024 * 1024);
+        console.log(
+          `Estimated image size: ${Math.round(
+            estimatedBytes / 1024
+          )} KB (${estimatedMB.toFixed(2)} MB)`
+        );
+
+        // Estimate resolution based on file size (rough calculation for high-quality images)
+        const estimatedPixels = Math.sqrt(estimatedBytes / 3); // Rough estimate assuming 3 bytes per pixel
+        console.log(
+          `Estimated resolution: ~${Math.round(estimatedPixels)}x${Math.round(
+            estimatedPixels
+          )} pixels`
+        );
+      }
+    }
+
+    if (!imageBase64) {
+      console.error("No image data received from AI model");
+      return NextResponse.json(
+        {
+          error:
+            "No image was generated. Please try again with a different prompt.",
+        },
+        { status: 500 }
+      );
     }
 
     // Do NOT auto-save — return generated image and text only. Client can save explicitly.
