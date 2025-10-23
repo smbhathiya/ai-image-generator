@@ -6,10 +6,38 @@ interface PromptRequest {
   images?: string[]; // base64 encoded images
 }
 
+function buildEnhancedPrompt(prompt: string, referenceCount: number): string {
+  const trimmed = prompt.trim();
+  const baseInstruction =
+    "Create one ultra high-resolution image (8K quality or higher) with exceptional detail, sharp focus, professional lighting, and photorealistic textures. Use maximum quality settings.";
+  const referenceInstruction = referenceCount
+    ? `Study and incorporate the visual style, composition techniques, color palette, and artistic elements from the ${referenceCount} provided reference image${
+        referenceCount > 1 ? "s" : ""
+      } while creating an original interpretation.`
+    : "Create an original composition using your full creative capabilities.";
+  const qualityConstraints =
+    "Requirements: Ultra-sharp details, no compression artifacts, balanced exposure, rich colors, professional-grade output. Return the highest quality image possible.";
+
+  return [
+    baseInstruction,
+    referenceInstruction,
+    qualityConstraints,
+    `User's creative vision: ${trimmed}`,
+  ].join("\n\n");
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body: PromptRequest = await req.json();
     const { prompt, images } = body;
+
+    if (!prompt || !prompt.trim()) {
+      return NextResponse.json(
+        { error: "Prompt is required to generate an image." },
+        { status: 400 }
+      );
+    }
+
     // Prefer the new Nano Banana API key, fall back to Gemini for compatibility
     const nanoBananaKey = process.env.NANO_BANANA_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
@@ -46,10 +74,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let result;
     try {
       // Create contents array with text prompt and images
+      const enhancedPrompt = buildEnhancedPrompt(prompt, images?.length ?? 0);
       const contents: Array<{
         text?: string;
         inlineData?: { mimeType: string; data: string };
-      }> = [{ text: prompt }];
+      }> = [{ text: enhancedPrompt }];
 
       // Add images if provided
       if (images && images.length > 0) {
