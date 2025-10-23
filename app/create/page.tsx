@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Download, Send, FilePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
 
 interface ImageResponse {
   image: string;
@@ -29,10 +30,15 @@ const CreateNew = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [base64Images, setBase64Images] = useState<string[]>([]);
+  const [imageMimeTypes, setImageMimeTypes] = useState<string[]>([]);
   const [viewingFullSize, setViewingFullSize] = useState(false);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchImage = async (payload: { prompt: string; images?: string[] }) => {
+  const fetchImage = async (payload: {
+    prompt: string;
+    images?: string[];
+    mimeTypes?: string[];
+  }) => {
     const res = await fetch("/api/generate-images", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,8 +54,15 @@ const CreateNew = () => {
     }
 
     const currentPrompt = prompt.trim();
+    const currentBase64Images = [...base64Images]; // Capture current reference images
+    const currentMimeTypes = [...imageMimeTypes]; // Capture current MIME types
     setGeneratingPrompt(currentPrompt);
     setPrompt(""); // Clear input after starting generation
+    // Clear reference images after starting generation
+    setSelectedFiles([]);
+    setPreviews([]);
+    setBase64Images([]);
+    setImageMimeTypes([]);
     // reset textarea height when prompt cleared
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
@@ -58,13 +71,21 @@ const CreateNew = () => {
     setError("");
 
     try {
-      // Use base64 images directly
-      console.log(`Generating with ${base64Images.length} reference images`);
+      // Use captured base64 images before they were cleared
+      console.log(
+        `Generating with ${currentBase64Images.length} reference images`
+      );
+      console.log("Payload being sent:", {
+        prompt: currentPrompt,
+        imagesCount: currentBase64Images.length,
+        firstImagePreview: currentBase64Images[0]?.substring(0, 50) + "...",
+      });
 
       // Send structured payload: prompt + base64 images array
       const result = await fetchImage({
         prompt: currentPrompt,
-        images: base64Images,
+        images: currentBase64Images,
+        mimeTypes: currentMimeTypes,
       });
 
       if (result?.image) {
@@ -82,7 +103,7 @@ const CreateNew = () => {
     } finally {
       setLoading(false);
     }
-  }, [prompt, base64Images]);
+  }, [prompt, base64Images, imageMimeTypes]);
 
   // File input handlers
   const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,23 +119,32 @@ const CreateNew = () => {
     toast.loading("Processing images...");
     try {
       const base64Array: string[] = [];
+      const mimeTypes: string[] = [];
 
       for (const file of files) {
+        console.log(
+          `Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`
+        );
         const reader = new FileReader();
         const base64 = await new Promise<string>((resolve, reject) => {
           reader.onload = () => {
             const result = reader.result as string;
             // Remove data:image/...;base64, prefix
             const base64Data = result.split(",")[1];
+            console.log(
+              `Converted ${file.name} to base64, length: ${base64Data.length}`
+            );
             resolve(base64Data);
           };
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
         base64Array.push(base64);
+        mimeTypes.push(file.type);
       }
 
       setBase64Images(base64Array);
+      setImageMimeTypes(mimeTypes);
       console.log(`Converted ${base64Array.length} images to base64`);
       toast.dismiss();
       toast.success(`Ready to use ${base64Array.length} reference image(s)`);
@@ -126,6 +156,7 @@ const CreateNew = () => {
       setSelectedFiles([]);
       setPreviews([]);
       setBase64Images([]);
+      setImageMimeTypes([]);
     }
   };
 
@@ -133,14 +164,17 @@ const CreateNew = () => {
     const copyFiles = [...selectedFiles];
     const copyPreviews = [...previews];
     const copyBase64 = [...base64Images];
+    const copyMimeTypes = [...imageMimeTypes];
     // revoke the object URL
     URL.revokeObjectURL(copyPreviews[index]);
     copyFiles.splice(index, 1);
     copyPreviews.splice(index, 1);
     copyBase64.splice(index, 1);
+    copyMimeTypes.splice(index, 1);
     setSelectedFiles(copyFiles);
     setPreviews(copyPreviews);
     setBase64Images(copyBase64);
+    setImageMimeTypes(copyMimeTypes);
   };
 
   // Keyboard handler: Enter to generate, Shift+Enter newline
@@ -260,7 +294,7 @@ const CreateNew = () => {
 
             {/* Generated prompt (stacked) */}
             {(loading || (generatingPrompt && generatedImage)) && (
-              <div className="w-full w-4xl my-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary break-words">
+              <div className="w-full my-4 p-3 bg-muted/30 rounded-lg border-l-4 border-primary break-words">
                 <p className="text-sm font-medium text-primary">
                   {loading ? "Generating..." : "Generated:"}
                 </p>
@@ -379,34 +413,7 @@ const CreateNew = () => {
       {/* Fixed bottom prompt bar - aligned with bottom nav */}
       <div className="fixed left-0 right-0 bottom-4 z-[60] flex justify-center pointer-events-none">
         <div className="w-[calc(100%-2rem)] max-w-4xl mx-auto pointer-events-auto ">
-          {/* Reference image previews - show above prompt bar */}
-          {previews.length > 0 && (
-            <div className="mb-2 flex gap-2 items-center justify-center">
-              {previews.map((p, i) => (
-                <div
-                  key={p}
-                  className="relative w-16 h-16 rounded-md overflow-hidden bg-background border"
-                >
-                  <Image
-                    src={p}
-                    alt={`preview-${i}`}
-                    width={64}
-                    height={64}
-                    className="object-cover"
-                  />
-                  <button
-                    onClick={() => removePreview(i)}
-                    aria-label="Remove"
-                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 w-5 h-5 flex items-center justify-center text-xs"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="rounded-xl bg-muted/20 backdrop-blur-md border border-border shadow-lg p-3 flex gap-3 items-end mb-24">
+          <div className="rounded-2xl bg-background/90 backdrop-blur-md border border-border/60 shadow-xl p-3 sm:p-4 flex gap-3 items-end mb-24">
             <input
               type="file"
               accept="image/*"
@@ -417,31 +424,71 @@ const CreateNew = () => {
             />
 
             <button
+              type="button"
               onClick={() =>
                 document.getElementById("file-input-bottom")?.click()
               }
-              className="rounded-md bg-muted/50 p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center"
+              className="rounded-lg bg-muted/40 p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center"
               aria-label="Add reference images"
             >
               <FilePlus className="w-5 h-5" />
             </button>
 
-            <textarea
-              ref={textareaRef}
-              placeholder="Enter your prompt here..."
-              value={prompt}
-              onChange={(e) => {
-                setPrompt(e.target.value);
-                // Auto resize textarea
-                const el = e.target;
-                el.style.height = "auto";
-                el.style.height = `${el.scrollHeight}px`;
-              }}
-              className="min-h-[52px] max-h-40 w-full resize-none rounded-md border bg-transparent px-3 py-2 text-base outline-none focus:ring-2 focus:ring-primary/40"
-              style={{ height: "auto" }}
-            />
+            <div className="flex-1">
+              <div className="relative w-full">
+                {previews.length > 0 && (
+                  <div className="absolute inset-x-3 top-2 z-10 flex gap-2 overflow-x-auto pb-2">
+                    {previews.map((p, i) => (
+                      <div
+                        key={`${p}-${i}`}
+                        className="group relative flex-shrink-0 h-12 w-12 overflow-hidden rounded-md border border-border/80 bg-muted"
+                      >
+                        <Image
+                          src={p}
+                          alt={`Reference ${i + 1}`}
+                          width={48}
+                          height={48}
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removePreview(i)}
+                          aria-label="Remove reference"
+                          className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-opacity group-hover:opacity-100"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <textarea
+                  ref={textareaRef}
+                  placeholder="Describe what you want in vivid detail (composition, mood, materials, lighting)..."
+                  value={prompt}
+                  onChange={(e) => {
+                    setPrompt(e.target.value);
+                    const el = e.target;
+                    el.style.height = "auto";
+                    el.style.height = `${el.scrollHeight}px`;
+                  }}
+                  className={cn(
+                    "relative z-0 w-full min-h-[52px] max-h-48 resize-none rounded-xl border border-border/60 bg-background/70 px-3 py-3 text-base leading-relaxed outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/30",
+                    previews.length > 0 && "pt-20"
+                  )}
+                  style={{ height: "auto" }}
+                />
+              </div>
+              {previews.length > 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {previews.length} reference image
+                  {previews.length > 1 ? "s" : ""} linked to this prompt.
+                </p>
+              )}
+            </div>
 
             <button
+              type="button"
               onClick={generateImage}
               disabled={loading}
               className="rounded-full bg-primary p-3 text-white hover:opacity-95 disabled:opacity-60 flex items-center justify-center"
